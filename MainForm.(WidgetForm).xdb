@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WidgetForm>
+	<Name>StatManager</Name>
+	<Priority>10000</Priority>
+	<Children>
+		<Item href="ListButton.(WidgetButton).xdb#xpointer(/WidgetButton)" />
+		<Item href="Menu/Widgets/MenuTemplate.(WidgetPanel).xdb#xpointer(/WidgetPanel)" />
+		<Item href="SaveBuildControl/SaveBuildTemplate.(WidgetPanel).xdb#xpointer(/WidgetPanel)" />
+		<Item href="ButtonText.xdb#xpointer(/WidgetTextView)" />
+	</Children>
+	<BackLayer href="" />
+	<FrontLayer href="" />
+	<Placement>
+		<QuantumScale>false</QuantumScale>
+		<X>
+			<Align>WIDGET_ALIGN_BOTH</Align>
+			<Sizing>WIDGET_SIZING_DEFAULT</Sizing>
+			<Pos>0</Pos>
+			<HighPos>0</HighPos>
+			<Size>32</Size>
+		</X>
+		<Y>
+			<Align>WIDGET_ALIGN_BOTH</Align>
+			<Sizing>WIDGET_SIZING_DEFAULT</Sizing>
+			<Pos>0</Pos>
+			<HighPos>0</HighPos>
+			<Size>32</Size>
+		</Y>
+	</Placement>
+	<Visible>true</Visible>
+	<Enabled>true</Enabled>
+	<TransparentInput>false</TransparentInput>
+	<PickChildrenOnly>true</PickChildrenOnly>
+</WidgetForm>

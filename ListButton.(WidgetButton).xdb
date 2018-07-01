@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<WidgetButton>
+	<Name>ListButton</Name>
+	<Priority>4000</Priority>
+	<Header>
+		<Prototype href="/Mods/SampleCommon/Button/ButtonRegular.Prototype.(WidgetButton).xdb#xpointer(/WidgetButton)" />
+	</Header>
+	<Placement>
+		<X>
+			<Align>WIDGET_ALIGN_LOW</Align>
+			<Pos>0</Pos>
+			<Size>32</Size>
+		</X>
+		<Y>
+			<Align>WIDGET_ALIGN_LOW</Align>
+			<Pos>0</Pos>
+			<Size>32</Size>
+		</Y>
+	</Placement>
+	<Enabled>true</Enabled>
+	<Variants>
+		<Item>
+			<TextFileRef href="ListButtonText.txt" />
+			<Reaction>ShowBuildsReaction</Reaction>
+			<ReactionRightClick>RIGHT_CLICK</ReactionRightClick>
+		</Item>
+	</Variants>
+</WidgetButton>
