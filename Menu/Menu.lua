@@ -78,6 +78,10 @@ function DestroyMenu( menuWidget )
 	menuWidget:DestroyWidget()
 end
 
+function GetChildMenu(menuWidget)
+	return Actions[ menuWidget:GetInstanceId() ].childMenu
+end
+
 ----------------------------------------------------------------------------------------------------
 
 function SaveAction( widget, action )
@@ -176,6 +180,7 @@ function OnOpenSubmenu( params )
 				menuInfo.childMenu = nil
 			end
 			menuInfo.childMenu = ShowMenu( pos, action, menuWidget )
+			
 		end
 	end
 end

@@ -155,10 +155,10 @@ function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aTy
 			if not aNeededOffenceStatId:IsEqual(offenceStat.id) then
 				--common.LogInfo( common.GetAddonName(), '--LoadBuild8-- ')
 				-- защита от дурака, если что то изменится в api для избежание ухода в бесконечный цикл
-				if TryFindCnt[anInd] > 50 then 
-					common.LogInfo( common.GetAddonName(), 'terminate change by TryFindCnt[i] ')
+				if TryFindCnt[anInd] > 100 then 
+					--common.LogInfo( common.GetAddonName(), 'terminate change by TryFindCnt[i] ')
 					IsLoadingNow = false
-					Chat("Не смог установить статы за 50 попыток")
+					Chat("Не смог установить статы за 100 попыток")
 					return true
 				end
 

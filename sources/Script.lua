@@ -45,7 +45,7 @@ local IsAOPanelEnabled = GetConfig( "EnableAOPanel" ) or GetConfig( "EnableAOPan
 
 function onAOPanelStart( params )
 	if IsAOPanelEnabled then
-		local SetVal = { val = userMods.ToWString( "S" ) }
+		local SetVal = { val = userMods.ToWString( ListMode and "Sc" or "S" ) }
 		local params = { header = SetVal, ptype = "button", size = 32 }
 		userMods.SendEvent( "AOPANEL_SEND_ADDON",
 			{ name = common.GetAddonName(), sysName = common.GetAddonName(), param = params } )
@@ -65,12 +65,16 @@ function onAOPanelRightClick( params )
 		local SetVal = { val = userMods.ToWString( ListMode and "S" or "Sc" )}
 		userMods.SendEvent( "AOPANEL_UPDATE_ADDON", { sysName = common.GetAddonName(), header = SetVal } )
 		ListMode = not ListMode
+		userMods.SetAvatarConfigSection( "LastListMode", {value = ListMode} )
 	end
+	HideMainMenu()
 end
 
 function RightClick(param)
 	ButtonText:SetVal("name", userMods.ToWString( ListMode and "S" or "Sc" )) 
 	ListMode = not ListMode
+	userMods.SetAvatarConfigSection( "LastListMode", {value = ListMode} )
+	HideMainMenu()
 end
 
 function onAOPanelChange( params )
@@ -94,7 +98,7 @@ end
 
 function GetLocalizedText()
 	local localizationStr = common.GetLocalization()
-	if localizationStr == "eng_eu" then
+	if localizationStr ~= "eng" and localizationStr ~= "fra" and localizationStr ~= "rus" then
 		localizationStr = "eng"
 	end
 	return common.GetAddonRelatedTextGroup( localizationStr )
@@ -124,6 +128,25 @@ function getBuildIndex( build )
 	end
 end
 
+function getBuildIndexByClass( aBuild )
+	local cnt = 1
+	for _, currBuild in ipairs( BuildsTable ) do
+		if aBuild.class == currBuild.class then 
+			if currBuild == aBuild then
+				return cnt
+			end
+			cnt = cnt + 1
+		end
+	end
+end
+
+function HideMainMenu()
+	if ClassMenu then
+		DestroyMenu( ClassMenu )
+		ClassMenu = nil 
+	end
+end
+
 function CreateSubMenu(ClassName)
 	local SubMenu = {}
 	for i, v in ipairs( BuildsTable ) do
@@ -134,7 +157,11 @@ function CreateSubMenu(ClassName)
 				--if v.class then MenuName = MenuName..'('..v.class..')'	end			
 				table.insert( SubMenu, {
 					name = userMods.ToWString( MenuName ),
-					onActivate = function() LoadBuild( build ) end,
+					onActivate = 
+					function() 
+						LoadBuild( build ) 
+						HideMainMenu()
+					end,
 					submenu = {
 						{ name = Localization:GetText( "rename" ),
 							onActivate = function() onRenameBuild( build ) end },
@@ -179,8 +206,7 @@ function onShowList( params )
 		RegisterDnd()
 		ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
 	else
-		DestroyMenu( ClassMenu )
-		ClassMenu = nil
+		HideMainMenu()
 	end
 end
 
@@ -188,9 +214,10 @@ end
 -- Renaming
 
 local RenameBuildIndex = nil
+local RenameMenuIndex = nil
 
 function GetMenuItems()
-	local children = ClassMenu:GetNamedChildren()
+	local children = ListMode and (GetChildMenu(ClassMenu) and GetChildMenu(ClassMenu):GetNamedChildren() or {}) or ClassMenu:GetNamedChildren()
 	table.sort( children,
 		function( a, b )
 			if a:GetName() == "ItemEditTemplate" then return false end
@@ -205,12 +232,13 @@ function onRenameBuild( build )
 		onRenameCancel()
 	end
 
+	
 	RenameBuildIndex = getBuildIndex( build )
-
-	local item = GetMenuItems()[ RenameBuildIndex ]
+	RenameMenuIndex = ListMode and getBuildIndexByClass(build) or RenameBuildIndex
+	local item = GetMenuItems()[ RenameMenuIndex ]
 	item:Show( false )
-
-	local edit = ClassMenu:GetChildChecked( "ItemEditTemplate", false )
+	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	edit:SetText( userMods.ToWString( build.name ) )
 	edit:SetPlacementPlain( item:GetPlacementPlain() )
 	edit:Show( true )
@@ -220,22 +248,26 @@ function onRenameBuild( build )
 end
 
 function onRenameCancel( params )
-	local item = GetMenuItems()[ RenameBuildIndex ]
+	local item = GetMenuItems()[ RenameMenuIndex ]
 	item:Show( true )
 
-	local edit = ClassMenu:GetChildChecked( "ItemEditTemplate", false )
+	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	edit:Show( false )
 	edit:Enable( false )
 
 	ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
 	RenameBuildIndex = nil
+	RenameMenuIndex = nil
 end
 
 function onRenameAccept( params )
-	local edit = ClassMenu:GetChildChecked( "ItemEditTemplate", false )
+	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	BuildsTable[ RenameBuildIndex ].name = userMods.FromWString( edit:GetText() )
 	SaveBuildsTable()
 	RenameBuildIndex = nil
+	RenameMenuIndex = nil
 
 	onShowList()
 	onShowList()
@@ -348,6 +380,10 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function Init()
+	local LastListMode = userMods.GetAvatarConfigSection( "LastListMode" )
+	ListMode = LastListMode and LastListMode.value
+	ButtonText:SetVal("name", userMods.ToWString( ListMode and "Sc" or "S" )) 
+	
 	LoadBuildsTable()
 
 	DnD:Init( 527, ListButton, ListButton, true )
