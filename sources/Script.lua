@@ -6,6 +6,7 @@ ButtonText:SetClassVal("class", "tip_white" )
 ListButton:AddChild(ButtonText)
 ButtonText:Show(true)
 
+local m_menuDesc = mainForm:GetChildChecked( "SaveBuildTemplate", false ):GetWidgetDesc()
 ----------------------------------------------------------------------------------------------------
 -- AddonManager support
 
@@ -194,8 +195,7 @@ function onShowList( params )
 			menu = CreateSubMenu(nil)
 		end
 
-		local desc = mainForm:GetChildChecked( "SaveBuildTemplate", false ):GetWidgetDesc()
-		table.insert( menu, { createWidget = function() return mainForm:CreateWidgetByDesc( desc ) end } )
+		table.insert( menu, { createWidget = function() return mainForm:CreateWidgetByDesc( m_menuDesc ) end } )
 
 		if ListButton:IsVisible() then
 			local pos = ListButton:GetPlacementPlain()
