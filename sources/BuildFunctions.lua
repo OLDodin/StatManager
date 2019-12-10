@@ -24,7 +24,14 @@ Global( "clTable", {
 Global( "TryFindCnt", {} )
 Global( "LoadingBuild", {} )
 Global( "IsLoadingNow", false )
+Global( "LastActivityTime", 0 )
 
+local lastOffenceInsigniaID = nil
+local lastDefenceInsigniaID = nil
+local lastOffenceInsigniaIndex = nil
+local lastDefenceInsigniaIndex = nil
+
+local locale = getLocale()
 ----------------------------------------------------------------------------------------------------
 -- Save/Load
 
@@ -50,7 +57,6 @@ function SaveCurrentBuild( name )
 
 	table.insert( BuildsTable, build )
 	SaveBuildsTable()
---	userMods.SendEvent( "BUILD_MANAGER_REQUEST_BILD", { index = table.getn(BuildsTable) } )
 end
 
 function UpdateBuild( index )
@@ -58,18 +64,25 @@ function UpdateBuild( index )
 	SaveStatBuild( BuildsTable[ index ] )
 
 	SaveBuildsTable()
---	userMods.SendEvent( "BUILD_MANAGER_REQUEST_BILD", { index = index } )
 end
 
 function LoadBuild( aBuild )
-	--[[if IsLoadingNow then 
-		Chat("Подождите, загружается др. билд")
-		return
-	end ]]--
 	IsLoadingNow = true
 	ResetTryCnt()
 	LoadingBuild = aBuild
 	LoadBuildInternal(aBuild, true)
+end
+
+function StopLoadBuild()
+	IsLoadingNow = false
+	ResetTryCnt()
+	LoadingBuild = {}
+	Chat(locale["doesNotEnd"])
+	
+end
+
+function GetTimestamp()
+	return common.GetMsFromDateTime( common.GetLocalDateTime() )
 end
 
 function OnStatChanged()
@@ -82,8 +95,9 @@ function OnStatChanged()
 end
 
 function LoadBuildInternal( aBuild )
+	LastActivityTime = GetTimestamp()
 	if IsPlayerInCombat() then
-		Chat("В бою статы не изменить")
+		Chat(locale["inFight"])
 		IsLoadingNow = false
 		return false
 	end
@@ -114,7 +128,7 @@ function LoadBuildInternal( aBuild )
 							return
 						end
 					else 
-						Chat("Отсутствует атакующая инсигния")
+						Chat(locale["missingAttackInsignia"])
 					end
 									
 					if defenceInsignia then 
@@ -123,14 +137,14 @@ function LoadBuildInternal( aBuild )
 							return
 						end
 					else 
-						Chat("Отсутствует защитная инсигния")
+						Chat(locale["missingDefenseInsignia"])
 					end
 				end
 			end
 		end
 	end
 	IsLoadingNow = false
-	Chat("Статы установлены")
+	Chat(locale["workDone"])
 end
 
 function DeleteBuild( anIndex )
@@ -140,7 +154,7 @@ end
 
 function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aType)
 	if IsPlayerInCombat() then
-		Chat("В бою статы не изменить")
+		Chat(locale["inFight"])
 		IsLoadingNow = false
 		return false
 	end
@@ -158,7 +172,7 @@ function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aTy
 				if TryFindCnt[anInd] > 100 then 
 					--common.LogInfo( common.GetAddonName(), 'terminate change by TryFindCnt[i] ')
 					IsLoadingNow = false
-					Chat("Не смог установить статы за 100 попыток")
+					Chat(locale["limitError"])
 					return true
 				end
 
@@ -198,13 +212,20 @@ function GetStatByType(aSpecStat, aType)
 	return nil
 end
 
-function CheckItemName(aMyItems, anRightNameArr)
+function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsigniaID)
+	if aLastInsigniaIndex~=nil then
+		local itemID = avatar.GetInventoryItemId(aLastInsigniaIndex)
+		if aLastInsigniaID and itemID and aLastInsigniaID == itemID then
+			return aLastInsigniaID, aLastInsigniaIndex
+		end
+	end
+		
 	for _, searchInsigniaName in ipairs(anRightNameArr) do
-		for i, itemId in pairs(aMyItems) do
-			local itemName = ItemInfoGetName(itemId)
+		for i, itemID in pairs(aMyItems) do
+			local itemName = ItemInfoGetName(itemID)
 			
 			if itemName == searchInsigniaName then
-				return itemId
+				return itemID, i
 			end
 		end
 	end
@@ -216,10 +237,10 @@ function GetInsignia()
 	if not myItems then 
 		myItems = {}
 	end
-	local resultOffenceInsignia = CheckItemName(myItems, g_offensiveItems)
-	local resultDefenceInsignia = CheckItemName(myItems, g_defensiveItems)
+	lastOffenceInsigniaID, lastOffenceInsigniaIndex = CheckItemName(myItems, g_offensiveItems, lastOffenceInsigniaIndex, lastOffenceInsigniaID)
+	lastDefenceInsigniaID, lastDefenceInsigniaIndex = CheckItemName(myItems, g_defensiveItems, lastDefenceInsigniaIndex, lastDefenceInsigniaID)
 	
-	return resultOffenceInsignia, resultDefenceInsignia
+	return lastOffenceInsigniaID, lastDefenceInsigniaID
 end
 
 

@@ -377,6 +377,16 @@ function OnDndEnd( params )
 	mission.DNDConfirmDropAttempt()
 end
 
+local function OnEventSecondTimer()
+	if LastActivityTime ~= 0 and IsLoadingNow then
+		local elapsedTime = GetTimestamp() - LastActivityTime
+		--прошло больше 10 секунд после последнего EVENT_AVATAR_STATS_CHANGED
+		if elapsedTime > 10000 then
+			StopLoadBuild()
+		end
+	end
+end
+
 ----------------------------------------------------------------------------------------------------
 
 function Init()
@@ -411,6 +421,8 @@ function Init()
 	
 	common.RegisterEventHandler( OnStatChanged, "EVENT_AVATAR_STATS_CHANGED")
 
+	common.RegisterEventHandler(OnEventSecondTimer, "EVENT_SECOND_TIMER")
+	
 	InitMenu()
 end
 

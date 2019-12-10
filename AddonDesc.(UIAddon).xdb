@@ -13,6 +13,7 @@
 		<Item href="/Mods/SampleCommon/SampleAddonBase.lua"/>
 		<Item href="Menu/Menu.lua"/>
 		<Item href="InsigniaNames.cfg"/>
+		<Item href="Locales/main.lua"/>
 		<Item href="BuildFunctions.lua"/>
 		<Item href="Script.lua"/>
 	</ScriptFileRefs>
