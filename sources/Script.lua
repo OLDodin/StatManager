@@ -142,7 +142,7 @@ function getBuildIndexByClass( aBuild )
 end
 
 function HideMainMenu()
-	if ClassMenu then
+	if ClassMenu and ClassMenu:IsValid() then
 		DestroyMenu( ClassMenu )
 		ClassMenu = nil 
 	end
