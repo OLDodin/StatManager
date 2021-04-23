@@ -32,7 +32,7 @@ function Chat(message, color, fontSize)
 	local valuedText = common.CreateValuedText()
 	--- fontname= 'AllodsWest' 'AllodsSystem'
 	local format = "<body alignx='left' fontname='AllodsWest' fontsize='"..(fontSize or GlobalFontSize)
-	format = format.."' shadow='1' ><rs class='color'><r name='text'/></rs></body>"
+	format = format.."' shadow='1' ><rs class='color'><r name='time'/> <r name='prefix'/> - <r name='text'/></rs></body>"
 	valuedText:SetFormat(userMods.ToWString(format))
 	if color then
 		valuedText:SetClassVal( "color", color )
@@ -48,14 +48,18 @@ function Chat(message, color, fontSize)
 		local_time.min = local_time.m
 	end
 
-	message = TimeToStr(local_time) ..' ' .. ChatPrefix .. ' - '.. message;
-	if not common.IsWString( message ) then 
-		message = userMods.ToWString(message) 
-	end
-
-	valuedText:SetVal( "text", message )
+	valuedText:SetVal( "time", ToWString(TimeToStr(local_time)) )
+	valuedText:SetVal( "prefix", ToWString(ChatPrefix) )
+	valuedText:SetVal( "text", ToWString(message) )
 	chatRows =  chatRows + 1
 	wtChat:PushFrontValuedText( valuedText )
+end
+
+function ToWString(aStr)
+	if not common.IsWString(aStr) then 
+		return userMods.ToWString(aStr) 
+	end
+	return aStr
 end
 	
 --- call by "EVENT_SECOND_TIMER" - for clear messages from chat

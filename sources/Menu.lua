@@ -196,6 +196,14 @@ function OnCloseSubmenu( params )
 	end
 end
 
+function ToWString(text)
+	if not text then return nil end
+	if not common.IsWString(text) then
+		text=userMods.ToWString(tostring(text))
+	end
+	return text
+end
+
 ----------------------------------------------------------------------------------------------------
 
 function InitMenu()

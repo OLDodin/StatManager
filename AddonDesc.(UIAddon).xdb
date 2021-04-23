@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <UIAddon>
 	<Name>StatManager</Name>
+	<AutoStart>true</AutoStart>
 	<localizedNameFileRef href="name.txt"/>
 	<localizedDescFileRef href="desc.txt"/>
-	<AutoStart>true</AutoStart>
 	<ScriptFileRefs>
 		<Item href="LibDnD.lua"/>
 		<Item href="Libs/Chat.lua"/>
@@ -11,8 +11,7 @@
 		<Item href="Libs/Color.lua"/>
 		<Item href="Libs/Widget.lua"/>
 		<Item href="/Mods/SampleCommon/SampleAddonBase.lua"/>
-		<Item href="Menu/Menu.lua"/>
-		<Item href="InsigniaNames.cfg"/>
+		<Item href="Menu.lua"/>
 		<Item href="Locales/main.lua"/>
 		<Item href="BuildFunctions.lua"/>
 		<Item href="Script.lua"/>
@@ -21,27 +20,17 @@
 	<Forms>
 		<Item>
 			<Id>Main</Id>
-			<Form href="MainForm.(WidgetForm).xdb#xpointer(/WidgetForm)"/>
+			<Form href="Widgets/MainForm.(WidgetForm).xdb#xpointer(/WidgetForm)"/>
 		</Item>
 	</Forms>
 	<textsGroups>
 		<Item>
-			<groupName>eng</groupName>
-			<texts href="Texts/eng/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
-		</Item>
-		<Item>
-			<groupName>fra</groupName>
-			<texts href="Texts/fra/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
-		</Item>
-		<Item>
-			<groupName>rus</groupName>
-			<texts href="Texts/rus/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+			<groupName>common</groupName>
+			<texts href="Locales/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
 		</Item>
 	</textsGroups>
 	<visObjects href=""/>
 	<texts href=""/>
 	<textures href=""/>
 <addon_name>StatManager</addon_name>
-<addon_date>1451667201</addon_date>
-<addon_link>https://alloder.pro/files/file/117-buildmanager/</addon_link>
 </UIAddon>

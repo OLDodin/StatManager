@@ -97,17 +97,9 @@ end
 
 ----------------------------------------------------------------------------------------------------
 
-function GetLocalizedText()
-	local localizationStr = common.GetLocalization()
-	if localizationStr ~= "eng" and localizationStr ~= "fra" and localizationStr ~= "rus" then
-		localizationStr = "eng"
-	end
-	return common.GetAddonRelatedTextGroup( localizationStr )
-end
-
 local BuildsMenu = nil
 local ClassMenu = nil
-local Localization = GetLocalizedText()
+local Localization = getLocale()
 
 function onSaveBuild( params )
 	local wtEdit = params.widget:GetParent():GetChildChecked( "BuildNameEdit", true )
@@ -164,11 +156,11 @@ function CreateSubMenu(ClassName)
 						HideMainMenu()
 					end,
 					submenu = {
-						{ name = Localization:GetText( "rename" ),
+						{ name = Localization["rename"],
 							onActivate = function() onRenameBuild( build ) end },
-						{ name = Localization:GetText( "delete" ),
+						{ name = Localization["delete"],
 							onActivate = function() DeleteBuild( getBuildIndex( build ) ); onShowList(); onShowList() end },
-						{ name = Localization:GetText( "update" ),
+						{ name = Localization["update"],
 							onActivate = function() UpdateBuild( getBuildIndex( build ) ) end },
 					}
 				})

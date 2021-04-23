@@ -225,7 +225,7 @@ function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsign
 		for i, itemID in pairs(aMyItems) do
 			local itemName = ItemInfoGetName(itemID)
 			
-			if itemName == searchInsigniaName then
+			if common.CompareWString(itemName, searchInsigniaName) == 0 then
 				return itemID, i
 			end
 		end
@@ -250,12 +250,12 @@ function ItemInfoGetName(anId)
 		local itemInfo = itemLib.GetItemInfo(anId)
 		if itemInfo then
 			if itemInfo.name then
-				return userMods.FromWString(itemInfo.name)
+				return itemInfo.name
 			else
-				return "";
+				return common.GetEmptyWString()
 			end
 		else
-			return "";
+			return common.GetEmptyWString()
 		end
 	end
 end
