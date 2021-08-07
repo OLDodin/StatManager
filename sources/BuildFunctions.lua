@@ -113,13 +113,11 @@ function LoadBuildInternal( aBuild )
 
 	for i = 0, DRESS_SLOT_UNDRESSABLE-1 do
 		local dressedItemID = myDressedSlots[i]
-		if aBuild.stats[i] and CheckTier(dressedItemID) then
+		if aBuild.stats[i] and dressedItemID and CheckTier(dressedItemID) then
 			local neededOffenceStatId = aBuild.stats[i][ENUM_SpecialStatType_Offence]
 			local neededDefenceStatId = aBuild.stats[i][ENUM_SpecialStatType_Defence]
-			local bonus = nil
-			if dressedItemID then 
-				bonus = itemLib.GetBonus(dressedItemID)
-			end
+			local bonus = itemLib.GetBonus(dressedItemID)
+
 			if bonus and bonus.specStats then
 				local offenceStat = GetStatByType(bonus.specStats, ENUM_SpecialStatType_Offence)
 				local defenceStat = GetStatByType(bonus.specStats, ENUM_SpecialStatType_Defence)
