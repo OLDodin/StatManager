@@ -25,8 +25,20 @@
 	</Forms>
 	<textsGroups>
 		<Item>
-			<groupName>common</groupName>
-			<texts href="Locales/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+			<groupName>rus</groupName>
+			<texts href="Locales/rus/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+		</Item>
+		<Item>
+			<groupName>eng</groupName>
+			<texts href="Locales/eng/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+		</Item>
+		<Item>
+			<groupName>fra</groupName>
+			<texts href="Locales/fra/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+		</Item>
+		<Item>
+			<groupName>insigniaNames</groupName>
+			<texts href="Locales/insigniaNames/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
 		</Item>
 	</textsGroups>
 	<visObjects href=""/>

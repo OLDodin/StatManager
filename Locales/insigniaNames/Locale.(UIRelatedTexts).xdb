@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UIRelatedTexts>
+  <items>
+    <Item>
+      <name>offensiveItem1</name>
+      <resource href="offensiveItem1.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem2</name>
+      <resource href="offensiveItem2.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem3</name>
+      <resource href="offensiveItem3.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem4</name>
+      <resource href="offensiveItem4.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem5</name>
+      <resource href="offensiveItem5.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem6</name>
+      <resource href="offensiveItem6.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem7</name>
+      <resource href="offensiveItem7.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem8</name>
+      <resource href="offensiveItem8.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem9</name>
+      <resource href="offensiveItem9.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem10</name>
+      <resource href="offensiveItem10.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem11</name>
+      <resource href="offensiveItem11.txt"/>
+    </Item>
+    <Item>
+      <name>offensiveItem12</name>
+      <resource href="offensiveItem12.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem1</name>
+      <resource href="defensiveItem1.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem2</name>
+      <resource href="defensiveItem2.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem3</name>
+      <resource href="defensiveItem3.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem4</name>
+      <resource href="defensiveItem4.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem5</name>
+      <resource href="defensiveItem5.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem6</name>
+      <resource href="defensiveItem6.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem7</name>
+      <resource href="defensiveItem7.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem8</name>
+      <resource href="defensiveItem8.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem9</name>
+      <resource href="defensiveItem9.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem10</name>
+      <resource href="defensiveItem10.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem11</name>
+      <resource href="defensiveItem11.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem12</name>
+      <resource href="defensiveItem12.txt"/>
+    </Item>
+  </items>
+</UIRelatedTexts>

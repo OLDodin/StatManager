@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UIRelatedTexts>
+  <items>
+    <Item>
+      <name>doesNotEnd</name>
+      <resource href="doesNotEnd.txt"/>
+    </Item>
+    <Item>
+      <name>inFight</name>
+      <resource href="inFight.txt"/>
+    </Item>
+    <Item>
+      <name>missingAttackInsignia</name>
+      <resource href="missingAttackInsignia.txt"/>
+    </Item>
+    <Item>
+      <name>missingDefenseInsignia</name>
+      <resource href="missingDefenseInsignia.txt"/>
+    </Item>
+    <Item>
+      <name>workDone</name>
+      <resource href="workDone.txt"/>
+    </Item>
+    <Item>
+      <name>limitError</name>
+      <resource href="limitError.txt"/>
+    </Item>
+    <Item>
+      <name>delete</name>
+      <resource href="delete.txt"/>
+    </Item>
+    <Item>
+      <name>rename</name>
+      <resource href="rename.txt"/>
+    </Item>
+    <Item>
+      <name>update</name>
+      <resource href="update.txt"/>
+    </Item>
+  </items>
+</UIRelatedTexts>
