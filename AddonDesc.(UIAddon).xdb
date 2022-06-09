@@ -42,7 +42,5 @@
 		</Item>
 	</textsGroups>
 	<visObjects href=""/>
-	<texts href=""/>
-	<textures href=""/>
 <addon_name>StatManager</addon_name>
 </UIAddon>
