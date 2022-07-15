@@ -379,6 +379,19 @@ local function OnEventSecondTimer()
 	end
 end
 
+local function OnSlashCommand(aParams)
+	if userMods.FromWString(aParams.text) == "/statsaveglobal" or userMods.FromWString(aParams.text) == "\\statsaveglobal" then
+		SetSaveGlobal(true)
+		common.StateUnloadManagedAddon( "UserAddon/StatManager" )
+		common.StateLoadManagedAddon( "UserAddon/StatManager" )
+	end
+	if userMods.FromWString(aParams.text) == "/statsaveavatar" or userMods.FromWString(aParams.text) == "\\statsaveavatar" then
+		SetSaveGlobal(false)
+		common.StateUnloadManagedAddon( "UserAddon/StatManager" )
+		common.StateLoadManagedAddon( "UserAddon/StatManager" )
+	end
+end
+
 ----------------------------------------------------------------------------------------------------
 
 function Init()
@@ -414,6 +427,7 @@ function Init()
 	common.RegisterEventHandler( OnStatChanged, "EVENT_AVATAR_STATS_CHANGED")
 
 	common.RegisterEventHandler(OnEventSecondTimer, "EVENT_SECOND_TIMER")
+	common.RegisterEventHandler( OnSlashCommand, "EVENT_UNKNOWN_SLASH_COMMAND" )
 	
 	InitMenu()
 end

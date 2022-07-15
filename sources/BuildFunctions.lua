@@ -35,12 +35,34 @@ local locale = getLocale()
 ----------------------------------------------------------------------------------------------------
 -- Save/Load
 
+function IsSaveGlobal()
+	local saveGlobal = userMods.GetGlobalConfigSection("StatManger_free_use_global")
+	return saveGlobal and saveGlobal.value
+end
+
+function SetSaveGlobal(aValue)
+	if aValue then
+		Chat(locale["saveGlobal"])
+	else
+		Chat(locale["saveLocal"])
+	end
+	userMods.SetGlobalConfigSection( "StatManger_free_use_global", { value = aValue } )
+end
+
 function SaveBuildsTable()
-	userMods.SetAvatarConfigSection( "StatBuilds", BuildsTable )
+	if (IsSaveGlobal()) then
+		userMods.SetGlobalConfigSection( "StatBuilds", BuildsTable )
+	else
+		userMods.SetAvatarConfigSection( "StatBuilds", BuildsTable )
+	end
 end
 
 function LoadBuildsTable()
-	BuildsTable = userMods.GetAvatarConfigSection( "StatBuilds" )
+	if (IsSaveGlobal()) then
+		BuildsTable = userMods.GetGlobalConfigSection( "StatBuilds" )
+	else
+		BuildsTable = userMods.GetAvatarConfigSection( "StatBuilds" )
+	end
 	if not BuildsTable then
 		BuildsTable = {}
 	end
