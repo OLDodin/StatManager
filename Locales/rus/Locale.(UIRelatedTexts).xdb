@@ -45,5 +45,9 @@
       <name>saveGlobal</name>
       <resource href="saveGlobal.txt"/>
     </Item>
+	<Item>
+      <name>unsuportedEquip</name>
+      <resource href="unsuportedEquip.txt"/>
+    </Item>
   </items>
 </UIRelatedTexts>

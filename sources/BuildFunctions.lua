@@ -143,7 +143,7 @@ function LoadBuildInternal( aBuild )
 			if bonus and bonus.specStats then
 				local offenceStat = GetStatByType(bonus.specStats, ENUM_SpecialStatType_Offence)
 				local defenceStat = GetStatByType(bonus.specStats, ENUM_SpecialStatType_Defence)
-
+				
 				if offenceStat and defenceStat then
 					local offenceInsignia = nil;
 					local defenceInsignia = nil;
@@ -223,14 +223,28 @@ function ResetTryCnt()
 end
 
 function GetStatByType(aSpecStat, aType)
-	if aSpecStat[1] and aSpecStat[1].type == aType then
-		return aSpecStat[1]
+	if GetTableSize(aSpecStat) > 3 then
+		--не тир3 а что-то новое, выведем предупреждение, возможно потребуется др механизм
+		Chat(locale["unsuportedEquip"])
 	end
-	if aSpecStat[2] and aSpecStat[2].type == aType then
-		return aSpecStat[2]
+	local statsByTypeArr = {}
+	for i, specStat in pairs(aSpecStat) do
+		if specStat and specStat.type == aType then
+			table.insert(statsByTypeArr, specStat)
+		end
+	end
+	--в тир3 шмоте ищем макс стат этого типа и сохраняем его
+	local maxSpexStat = nil
+	for i, specStat in pairs(statsByTypeArr) do
+		if maxSpexStat == nil then
+			maxSpexStat = specStat
+		end
+		if specStat.value > maxSpexStat.value then
+			maxSpexStat = specStat
+		end
 	end
 	
-	return nil
+	return maxSpexStat
 end
 
 function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsigniaID)
@@ -289,6 +303,7 @@ function SaveStatBuild( aBuilds )
 	for i = 0, DRESS_SLOT_UNDRESSABLE-1 do
 		local dressedItemID = myDressedSlots[i]
 		aBuilds.stats[i] = nil;
+		
 		
 		if dressedItemID then
 			local bonus = itemLib.GetBonus(dressedItemID)
