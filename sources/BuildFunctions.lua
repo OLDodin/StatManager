@@ -121,7 +121,8 @@ local function GetItemTier(anItemId)
 end
 
 local function CheckTier(anItemId)
-	return GetItemTier(anItemId) < 3
+	return true
+	--return GetItemTier(anItemId) < 3
 end
 
 function LoadBuildInternal( aBuild )
