@@ -49,5 +49,9 @@
       <name>unsuportedEquip</name>
       <resource href="unsuportedEquip.txt"/>
     </Item>
+	<Item>
+      <name>workStart</name>
+      <resource href="workStart.txt"/>
+    </Item>
   </items>
 </UIRelatedTexts>

@@ -21,17 +21,18 @@ Global( "clTable", {
 	WARLOCK = "WARLOCK"
 })
 
-Global( "TryFindCnt", {} )
+Global( "TryFindCnt", 0 )
 Global( "LoadingBuild", {} )
 Global( "IsLoadingNow", false )
 Global( "LastActivityTime", 0 )
 
-local lastOffenceInsigniaID = nil
-local lastDefenceInsigniaID = nil
-local lastOffenceInsigniaIndex = nil
-local lastDefenceInsigniaIndex = nil
+local m_lastOffenceInsigniaID = nil
+local m_lastDefenceInsigniaID = nil
+local m_lastOffenceInsigniaIndex = nil
+local m_lastDefenceInsigniaIndex = nil
+local m_changedItemOnTick = {}
 
-local locale = getLocale()
+local m_locale = getLocale()
 ----------------------------------------------------------------------------------------------------
 -- Save/Load
 
@@ -42,9 +43,9 @@ end
 
 function SetSaveGlobal(aValue)
 	if aValue then
-		Chat(locale["saveGlobal"])
+		Chat(m_locale["saveGlobal"])
 	else
-		Chat(locale["saveLocal"])
+		Chat(m_locale["saveLocal"])
 	end
 	userMods.SetGlobalConfigSection( "StatManger_free_use_global", { value = aValue } )
 end
@@ -89,6 +90,7 @@ function UpdateBuild( index )
 end
 
 function LoadBuild( aBuild )
+	Chat(m_locale["workStart"])
 	IsLoadingNow = true
 	ResetTryCnt()
 	LoadingBuild = aBuild
@@ -98,18 +100,33 @@ end
 function StopLoadBuild()
 	IsLoadingNow = false
 	ResetTryCnt()
+	m_changedItemOnTick = {}
 	LoadingBuild = {}
-	Chat(locale["doesNotEnd"])
-	
+	Chat(m_locale["doesNotEnd"])
 end
 
 function GetTimestamp()
 	return common.GetMsFromDateTime( common.GetLocalDateTime() )
 end
 
-function OnStatChanged()
+
+local function IsAllChangedItemVerified()
+	for _, verified in pairs(m_changedItemOnTick) do
+		if not verified then
+			return false
+		end
+	end
+	return true
+end
+
+function OnItemChanged(aParam)
 	if IsLoadingNow then
-		LoadBuildInternal( LoadingBuild )	
+		if m_changedItemOnTick[aParam.itemId] ~= nil then
+			m_changedItemOnTick[aParam.itemId] = true
+			if IsAllChangedItemVerified() then
+				LoadBuildInternal( LoadingBuild )
+			end
+		end
 	end
 end
 
@@ -128,12 +145,13 @@ end
 function LoadBuildInternal( aBuild )
 	LastActivityTime = GetTimestamp()
 	if IsPlayerInCombat() then
-		Chat(locale["inFight"])
+		Chat(m_locale["inFight"])
 		IsLoadingNow = false
 		return false
 	end
 	local myDressedSlots = unit.GetEquipmentItemIds(avatar.GetId(), ITEM_CONT_EQUIPMENT)
 
+	m_changedItemOnTick = {}
 	for i = 0, DRESS_SLOT_UNDRESSABLE-1 do
 		local dressedItemID = myDressedSlots[i]
 		if aBuild.stats[i] and dressedItemID and CheckTier(dressedItemID) then
@@ -152,25 +170,37 @@ function LoadBuildInternal( aBuild )
 					offenceInsignia, defenceInsignia = GetInsignia()
 					if offenceInsignia then 
 						if ChangeStat(i, offenceInsignia, dressedItemID, neededOffenceStatId, ENUM_SpecialStatType_Offence) then
-							return
+							m_changedItemOnTick[dressedItemID] = false
 						end
 					else 
-						Chat(locale["missingAttackInsignia"])
+						Chat(m_locale["missingAttackInsignia"])
 					end
 									
 					if defenceInsignia then 
 						if ChangeStat(i, defenceInsignia, dressedItemID, neededDefenceStatId, ENUM_SpecialStatType_Defence) then
-							return
+							m_changedItemOnTick[dressedItemID] = false
 						end
 					else 
-						Chat(locale["missingDefenseInsignia"])
+						Chat(m_locale["missingDefenseInsignia"])
 					end
 				end
 			end
 		end
 	end
-	IsLoadingNow = false
-	Chat(locale["workDone"])
+	
+	-- защита от дурака, если что то изменится в api для избежания ухода в бесконечный цикл
+	if TryFindCnt > 10 then 
+		IsLoadingNow = false
+		Chat(m_locale["limitError"])
+		return
+	end
+	
+	TryFindCnt = TryFindCnt + 1
+	
+	if GetTableSize(m_changedItemOnTick) == 0 then
+		IsLoadingNow = false
+		Chat(m_locale["workDone"])
+	end
 end
 
 function DeleteBuild( anIndex )
@@ -180,7 +210,7 @@ end
 
 function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aType)
 	if IsPlayerInCombat() then
-		Chat(locale["inFight"])
+		Chat(m_locale["inFight"])
 		IsLoadingNow = false
 		return false
 	end
@@ -189,21 +219,10 @@ function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aTy
 	if mayBeUsed then
 		if itemLib.IsUseOnItemAndTakeActions(anInsignia) then 
 			local bonus = itemLib.GetBonus(aDressedItemID)
-			local offenceStat = GetStatByType(bonus.specStats, aType)
-
-			if not aNeededOffenceStatId:IsEqual(offenceStat.id) then
-				-- защита от дурака, если что то изменится в api для избежания ухода в бесконечный цикл
-				if TryFindCnt[anInd] > 100 then 
-					--common.LogInfo( common.GetAddonName(), 'terminate change by TryFindCnt[i] ')
-					IsLoadingNow = false
-					Chat(locale["limitError"])
-					return true
-				end
-				
-				TryFindCnt[anInd] = TryFindCnt[anInd] + 1
-				
+			local someStat = GetStatByType(bonus.specStats, aType)
+			
+			if not aNeededOffenceStatId:IsEqual(someStat.id) then
 				avatar.UseItemOnItemAndTakeActions(anInsignia, aDressedItemID)
-				
 				return true
 			end
 		end
@@ -218,15 +237,13 @@ function IsPlayerInCombat()
 end
 
 function ResetTryCnt()
-	for i = 0, DRESS_SLOT_UNDRESSABLE-1 do
-		TryFindCnt[i] = 0
-	end
+	TryFindCnt = 0
 end
 
 function GetStatByType(aSpecStat, aType)
 	if GetTableSize(aSpecStat) > 3 then
 		--не тир3 а что-то новое, выведем предупреждение, возможно потребуется др механизм
-		Chat(locale["unsuportedEquip"])
+		Chat(m_locale["unsuportedEquip"])
 	end
 	local statsByTypeArr = {}
 	for i, specStat in pairs(aSpecStat) do
@@ -273,16 +290,16 @@ function GetInsignia()
 	if not myItems then 
 		myItems = {}
 	end
-	lastOffenceInsigniaID, lastOffenceInsigniaIndex = CheckItemName(myItems, g_offensiveItems, lastOffenceInsigniaIndex, lastOffenceInsigniaID)
-	lastDefenceInsigniaID, lastDefenceInsigniaIndex = CheckItemName(myItems, g_defensiveItems, lastDefenceInsigniaIndex, lastDefenceInsigniaID)
+	m_lastOffenceInsigniaID, m_lastOffenceInsigniaIndex = CheckItemName(myItems, g_offensiveItems, m_lastOffenceInsigniaIndex, m_lastOffenceInsigniaID)
+	m_lastDefenceInsigniaID, m_lastDefenceInsigniaIndex = CheckItemName(myItems, g_defensiveItems, m_lastDefenceInsigniaIndex, m_lastDefenceInsigniaID)
 	
-	return lastOffenceInsigniaID, lastDefenceInsigniaID
+	return m_lastOffenceInsigniaID, m_lastDefenceInsigniaID
 end
 
 
-function ItemInfoGetName(anId)
-	if anId then
-		local itemInfo = itemLib.GetItemInfo(anId)
+function ItemInfoGetName(anID)
+	if anID then
+		local itemInfo = itemLib.GetItemInfo(anID)
 		if itemInfo then
 			if itemInfo.name then
 				return itemInfo.name
@@ -296,7 +313,7 @@ function ItemInfoGetName(anId)
 end
 ----------------------------------------------------------------------------------------------------
 
-function SaveStatBuild( aBuilds )
+function SaveStatBuild(aBuilds)
 	aBuilds.stats = {}
 
 	local myDressedSlots = unit.GetEquipmentItemIds(avatar.GetId(), ITEM_CONT_EQUIPMENT)

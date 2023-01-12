@@ -6,10 +6,7 @@
 	<localizedDescFileRef href="desc.txt"/>
 	<ScriptFileRefs>
 		<Item href="LibDnD.lua"/>
-		<Item href="Libs/Chat.lua"/>
-		<Item href="Libs/Log.lua"/>
-		<Item href="Libs/Color.lua"/>
-		<Item href="Libs/Widget.lua"/>
+		<Item href="Chat.lua"/>
 		<Item href="/Mods/SampleCommon/SampleAddonBase.lua"/>
 		<Item href="Menu.lua"/>
 		<Item href="Locales/main.lua"/>

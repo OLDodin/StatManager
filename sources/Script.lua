@@ -372,7 +372,7 @@ end
 local function OnEventSecondTimer()
 	if LastActivityTime ~= 0 and IsLoadingNow then
 		local elapsedTime = GetTimestamp() - LastActivityTime
-		--прошло больше 10 секунд после последнего EVENT_AVATAR_STATS_CHANGED
+		--прошло больше 10 секунд после последнего EVENT_GAME_ITEM_CHANGED
 		if elapsedTime > 10000 then
 			StopLoadBuild()
 		end
@@ -424,7 +424,7 @@ function Init()
 
 	common.RegisterEventHandler( OnDndPick, "EVENT_DND_PICK_ATTEMPT" )
 	
-	common.RegisterEventHandler( OnStatChanged, "EVENT_AVATAR_STATS_CHANGED")
+	common.RegisterEventHandler( OnItemChanged, "EVENT_GAME_ITEM_CHANGED")
 
 	common.RegisterEventHandler(OnEventSecondTimer, "EVENT_SECOND_TIMER")
 	common.RegisterEventHandler( OnSlashCommand, "EVENT_UNKNOWN_SLASH_COMMAND" )
