@@ -38,6 +38,7 @@ local m_locale = getLocale()
 
 function IsSaveGlobal()
 	local saveGlobal = userMods.GetGlobalConfigSection("StatManger_free_use_global")
+	
 	return saveGlobal and saveGlobal.value
 end
 
@@ -64,6 +65,7 @@ function LoadBuildsTable()
 	else
 		BuildsTable = userMods.GetAvatarConfigSection( "StatBuilds" )
 	end
+	
 	if not BuildsTable then
 		BuildsTable = {}
 	end
