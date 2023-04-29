@@ -79,7 +79,7 @@ function RightClick(param)
 end
 
 function onAOPanelChange( params )
-	if params.unloading and params.name == "UserAddon/AOPanelMod" then
+	if params.unloading and string.find(params.name, "AOPanel") then
 		ListButton:Show( true )
 	end
 end

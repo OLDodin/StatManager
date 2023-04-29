@@ -152,7 +152,6 @@ function LoadBuildInternal( aBuild )
 		return false
 	end
 	local myDressedSlots = unit.GetEquipmentItemIds(avatar.GetId(), ITEM_CONT_EQUIPMENT)
-
 	m_changedItemOnTick = {}
 	for i = 0, DRESS_SLOT_UNDRESSABLE-1 do
 		local dressedItemID = myDressedSlots[i]
@@ -177,13 +176,15 @@ function LoadBuildInternal( aBuild )
 					else 
 						Chat(m_locale["missingAttackInsignia"])
 					end
-									
-					if defenceInsignia then 
-						if ChangeStat(i, defenceInsignia, dressedItemID, neededDefenceStatId, ENUM_SpecialStatType_Defence) then
-							m_changedItemOnTick[dressedItemID] = false
+					--иногда при смене одновременно атакующей и защитной стат они меняются сервером в разное время, поэтому крутим по одной
+					if m_changedItemOnTick[dressedItemID] == nil then
+						if defenceInsignia then 
+							if ChangeStat(i, defenceInsignia, dressedItemID, neededDefenceStatId, ENUM_SpecialStatType_Defence) then
+								m_changedItemOnTick[dressedItemID] = false
+							end
+						else 
+							Chat(m_locale["missingDefenseInsignia"])
 						end
-					else 
-						Chat(m_locale["missingDefenseInsignia"])
 					end
 				end
 			end
