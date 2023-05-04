@@ -43,7 +43,7 @@ end
 -- AOPanel support
 
 local IsAOPanelEnabled = GetConfig( "EnableAOPanel" ) or GetConfig( "EnableAOPanel" ) == nil
-
+local IsBtnInAOPanelNow = false
 function onAOPanelStart( params )
 	if IsAOPanelEnabled then
 		local SetVal = { val = userMods.ToWString( ListMode and "Sc" or "S" ) }
@@ -52,12 +52,13 @@ function onAOPanelStart( params )
 			{ name = common.GetAddonName(), sysName = common.GetAddonName(), param = params } )
 
 		ListButton:Show( false )
+		IsBtnInAOPanelNow = true
 	end
 end
 
 function onAOPanelLeftClick( params )
 	if params.sender == common.GetAddonName() then
-		onShowList()
+		onShowList(params)
 	end
 end
 
@@ -81,6 +82,7 @@ end
 function onAOPanelChange( params )
 	if params.unloading and string.find(params.name, "AOPanel") then
 		ListButton:Show( true )
+		IsBtnInAOPanelNow = false
 	end
 end
 
@@ -92,6 +94,7 @@ function enableAOPanelIntegration( enable )
 		onAOPanelStart()
 	else
 		ListButton:Show( true )
+		IsBtnInAOPanelNow = false
 	end
 end
 
@@ -193,7 +196,7 @@ function onShowList( params )
 			local pos = ListButton:GetPlacementPlain()
 			ClassMenu = ShowMenu( { x = pos.posX, y = pos.posY + pos.sizeY }, menu )
 		else
-			ClassMenu = ShowMenu( { x = 0, y = 32 }, menu )
+			ClassMenu = ShowMenu( { x = params and params.x or 0, y = 32 }, menu )
 		end
 		RegisterDnd()
 		ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
@@ -392,6 +395,14 @@ local function OnSlashCommand(aParams)
 	end
 end
 
+local function onInterfaceToggle(aParams)
+	if aParams.toggleTarget == ENUM_InterfaceToggle_Target_All then
+		if not IsBtnInAOPanelNow then
+			ListButton:Show( not aParams.hide )
+		end
+	end
+end
+
 ----------------------------------------------------------------------------------------------------
 
 function Init()
@@ -413,6 +424,8 @@ function Init()
 	common.RegisterEventHandler( onAOPanelLeftClick, "AOPANEL_BUTTON_LEFT_CLICK" )
 	common.RegisterEventHandler( onAOPanelRightClick, "AOPANEL_BUTTON_RIGHT_CLICK" )
 	common.RegisterEventHandler( onAOPanelChange, "EVENT_ADDON_LOAD_STATE_CHANGED" )
+	
+	common.RegisterEventHandler( onInterfaceToggle, "EVENT_INTERFACE_TOGGLE" )
 
 	common.RegisterReactionHandler( onSaveBuild, "SaveBuildReaction" )
 	common.RegisterReactionHandler( onShowList, "ShowBuildsReaction" )

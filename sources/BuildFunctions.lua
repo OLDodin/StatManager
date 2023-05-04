@@ -51,6 +51,12 @@ function SetSaveGlobal(aValue)
 	userMods.SetGlobalConfigSection( "StatManger_free_use_global", { value = aValue } )
 end
 
+function IsFirstStart()
+	if not userMods.GetAvatarConfigSection( "StatBuilds" ) and not userMods.GetGlobalConfigSection( "StatBuilds" ) then
+		return true
+	end
+end
+
 function SaveBuildsTable()
 	if (IsSaveGlobal()) then
 		userMods.SetGlobalConfigSection( "StatBuilds", BuildsTable )
@@ -65,8 +71,12 @@ function LoadBuildsTable()
 	else
 		BuildsTable = userMods.GetAvatarConfigSection( "StatBuilds" )
 	end
-	
+
 	if not BuildsTable then
+	--при "чистой" установке включаем режим глобального хранения
+		if IsFirstStart() then
+			SetSaveGlobal(true)
+		end
 		BuildsTable = {}
 	end
 end
