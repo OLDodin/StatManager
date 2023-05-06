@@ -73,10 +73,11 @@ function LoadBuildsTable()
 	end
 
 	if not BuildsTable then
+	--[[ --при нескольких аккаунтах/аватарх мы не сможем однозначно сказать, чистая это
 	--при "чистой" установке включаем режим глобального хранения
 		if IsFirstStart() then
 			SetSaveGlobal(true)
-		end
+		end]]
 		BuildsTable = {}
 	end
 end
