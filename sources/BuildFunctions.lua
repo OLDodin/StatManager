@@ -291,7 +291,7 @@ function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsign
 		for i, itemID in pairs(aMyItems) do
 			local itemName = ItemInfoGetName(itemID)
 			
-			if common.CompareWString(itemName, searchInsigniaName) == 0 then
+			if itemName == searchInsigniaName then
 				return itemID, i
 			end
 		end

@@ -49,6 +49,10 @@
       <name>offensiveItem12</name>
       <resource href="offensiveItem12.txt"/>
     </Item>
+	<Item>
+      <name>offensiveItem13</name>
+      <resource href="offensiveItem13.txt"/>
+    </Item>
     <Item>
       <name>defensiveItem1</name>
       <resource href="defensiveItem1.txt"/>
@@ -96,6 +100,10 @@
     <Item>
       <name>defensiveItem12</name>
       <resource href="defensiveItem12.txt"/>
+    </Item>
+	<Item>
+      <name>defensiveItem13</name>
+      <resource href="defensiveItem13.txt"/>
     </Item>
   </items>
 </UIRelatedTexts>

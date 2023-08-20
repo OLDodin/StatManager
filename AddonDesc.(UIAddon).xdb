@@ -2,6 +2,7 @@
 <UIAddon>
 	<Name>StatManager</Name>
 	<AutoStart>true</AutoStart>
+	<Form href="Widgets/MainForm.(WidgetForm).xdb#xpointer(/WidgetForm)"/>
 	<localizedNameFileRef href="name.txt"/>
 	<localizedDescFileRef href="desc.txt"/>
 	<ScriptFileRefs>
@@ -13,13 +14,6 @@
 		<Item href="BuildFunctions.lua"/>
 		<Item href="Script.lua"/>
 	</ScriptFileRefs>
-	<MainFormId>Main</MainFormId>
-	<Forms>
-		<Item>
-			<Id>Main</Id>
-			<Form href="Widgets/MainForm.(WidgetForm).xdb#xpointer(/WidgetForm)"/>
-		</Item>
-	</Forms>
 	<textsGroups>
 		<Item>
 			<groupName>rus</groupName>
