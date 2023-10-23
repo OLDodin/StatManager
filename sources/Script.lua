@@ -1,3 +1,5 @@
+Global( "g_lastAoPanelParams", nil )
+
 local ListMode = false
 local ListButton = mainForm:GetChildChecked( "ListButton", true )
 local ButtonText = mainForm:GetChildChecked( "ButtonText", true )
@@ -58,6 +60,7 @@ end
 
 function onAOPanelLeftClick( params )
 	if params.sender == common.GetAddonName() then
+		g_lastAoPanelParams = params
 		onShowList(params)
 	end
 end
@@ -110,8 +113,8 @@ function onSaveBuild( params )
 
 	if text ~= "" then
 		SaveCurrentBuild( text )
-		onShowList()
-		onShowList()
+		onShowList(g_lastAoPanelParams)
+		onShowList(g_lastAoPanelParams)
 	end
 end
 
@@ -162,7 +165,7 @@ function CreateSubMenu(ClassName)
 						{ name = Localization["rename"],
 							onActivate = function() onRenameBuild( build ) end },
 						{ name = Localization["delete"],
-							onActivate = function() DeleteBuild( getBuildIndex( build ) ); onShowList(); onShowList() end },
+							onActivate = function() DeleteBuild( getBuildIndex( build ) ); onShowList(g_lastAoPanelParams); onShowList(g_lastAoPanelParams) end },
 						{ name = Localization["update"],
 							onActivate = function() UpdateBuild( getBuildIndex( build ) ) end },
 					}
@@ -264,8 +267,8 @@ function onRenameAccept( params )
 	RenameBuildIndex = nil
 	RenameMenuIndex = nil
 
-	onShowList()
-	onShowList()
+	onShowList(g_lastAoPanelParams)
+	onShowList(g_lastAoPanelParams)
 end
 
 function onRenameFocus( params )
@@ -433,7 +436,6 @@ function Init()
 	common.RegisterReactionHandler( onRenameCancel, "RenameCancelReaction" )
 	common.RegisterReactionHandler( onRenameAccept, "RenameBuildReaction" )
 	common.RegisterReactionHandler( onRenameFocus, "RenameFocusChanged" )
-	common.RegisterReactionHandler( onShowList, "WikiEscReaction" )
 
 	common.RegisterEventHandler( OnDndPick, "EVENT_DND_PICK_ATTEMPT" )
 	
