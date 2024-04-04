@@ -115,7 +115,7 @@ function StopLoadBuild()
 	ResetTryCnt()
 	m_changedItemOnTick = {}
 	LoadingBuild = {}
-	Chat(m_locale["doesNotEnd"])
+	Chat(m_locale["doesNotEnd"], "warning")
 end
 
 function GetTimestamp()
@@ -158,7 +158,7 @@ end
 function LoadBuildInternal( aBuild )
 	LastActivityTime = GetTimestamp()
 	if IsPlayerInCombat() then
-		Chat(m_locale["inFight"])
+		Chat(m_locale["inFight"], "warning")
 		IsLoadingNow = false
 		return false
 	end
@@ -185,7 +185,7 @@ function LoadBuildInternal( aBuild )
 							m_changedItemOnTick[dressedItemID] = false
 						end
 					else 
-						Chat(m_locale["missingAttackInsignia"])
+						Chat(m_locale["missingAttackInsignia"], "warning")
 					end
 					--иногда при смене одновременно атакующей и защитной стат они меняются сервером в разное время, поэтому крутим по одной
 					if m_changedItemOnTick[dressedItemID] == nil then
@@ -194,7 +194,7 @@ function LoadBuildInternal( aBuild )
 								m_changedItemOnTick[dressedItemID] = false
 							end
 						else 
-							Chat(m_locale["missingDefenseInsignia"])
+							Chat(m_locale["missingDefenseInsignia"], "warning")
 						end
 					end
 				end
@@ -205,7 +205,7 @@ function LoadBuildInternal( aBuild )
 	-- защита от дурака, если что то изменится в api для избежания ухода в бесконечный цикл
 	if TryFindCnt > 10 then 
 		IsLoadingNow = false
-		Chat(m_locale["limitError"])
+		Chat(m_locale["limitError"], "error")
 		return
 	end
 	
@@ -224,7 +224,7 @@ end
 
 function ChangeStat(anInd, anInsignia, aDressedItemID, aNeededOffenceStatId, aType)
 	if IsPlayerInCombat() then
-		Chat(m_locale["inFight"])
+		Chat(m_locale["inFight"], "warning")
 		IsLoadingNow = false
 		return false
 	end
@@ -257,7 +257,7 @@ end
 function GetStatByType(aSpecStat, aType)
 	if GetTableSize(aSpecStat) > 3 then
 		--не тир3 а что-то новое, выведем предупреждение, возможно потребуется др механизм
-		Chat(m_locale["unsuportedEquip"])
+		Chat(m_locale["unsuportedEquip"], "error")
 	end
 	local statsByTypeArr = {}
 	for i, specStat in pairs(aSpecStat) do

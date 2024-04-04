@@ -20,9 +20,11 @@
 	<Enabled>true</Enabled>
 	<Variants>
 		<Item>
-			<TextFileRef href="ListButtonText.txt" />
 			<Reaction>ShowBuildsReaction</Reaction>
 			<ReactionRightClick>RIGHT_CLICK</ReactionRightClick>
+			<StateNormal>
+				<FormatFileRef href="ListButtonText.txt" />
+			</StateNormal>
 		</Item>
 	</Variants>
 </WidgetButton>

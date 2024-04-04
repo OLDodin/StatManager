@@ -1,12 +1,10 @@
 Global( "g_lastAoPanelParams", nil )
 
-local ListMode = false
+local ListInClassMode = false
 local ListButton = mainForm:GetChildChecked( "ListButton", true )
-local ButtonText = mainForm:GetChildChecked( "ButtonText", true )
-ButtonText:SetVal("name", userMods.ToWString( ListMode and "Sc" or "S" )) 
-ButtonText:SetClassVal("class", "tip_white" )
-ListButton:AddChild(ButtonText)
-ButtonText:Show(true)
+ListButton:SetVal("button_label", userMods.ToWString( ListInClassMode and "Sc" or "S" )) 
+
+local m_currentMenu = nil
 
 local m_menuDesc = mainForm:GetChildChecked( "SaveBuildTemplate", false ):GetWidgetDesc()
 ----------------------------------------------------------------------------------------------------
@@ -48,7 +46,7 @@ local IsAOPanelEnabled = GetConfig( "EnableAOPanel" ) or GetConfig( "EnableAOPan
 local IsBtnInAOPanelNow = false
 function onAOPanelStart( params )
 	if IsAOPanelEnabled then
-		local SetVal = { val = userMods.ToWString( ListMode and "Sc" or "S" ) }
+		local SetVal = { val = userMods.ToWString( ListInClassMode and "Sc" or "S" ) }
 		local params = { header = SetVal, ptype = "button", size = 32 }
 		userMods.SendEvent( "AOPANEL_SEND_ADDON",
 			{ name = common.GetAddonName(), sysName = common.GetAddonName(), param = params } )
@@ -62,23 +60,25 @@ function onAOPanelLeftClick( params )
 	if params.sender == common.GetAddonName() then
 		g_lastAoPanelParams = params
 		onShowList(params)
+	else
+		HideMainMenu()
 	end
 end
 
 function onAOPanelRightClick( params )
 	if params.sender == common.GetAddonName() then
-		local SetVal = { val = userMods.ToWString( ListMode and "S" or "Sc" )}
+		local SetVal = { val = userMods.ToWString( ListInClassMode and "S" or "Sc" )}
 		userMods.SendEvent( "AOPANEL_UPDATE_ADDON", { sysName = common.GetAddonName(), header = SetVal } )
-		ListMode = not ListMode
-		userMods.SetAvatarConfigSection( "LastListMode", {value = ListMode} )
+		ListInClassMode = not ListInClassMode
+		userMods.SetAvatarConfigSection( "LastListMode", {value = ListInClassMode} )
+		HideMainMenu()
 	end
-	HideMainMenu()
 end
 
 function RightClick(param)
-	ButtonText:SetVal("name", userMods.ToWString( ListMode and "S" or "Sc" )) 
-	ListMode = not ListMode
-	userMods.SetAvatarConfigSection( "LastListMode", {value = ListMode} )
+	ListInClassMode = not ListInClassMode
+	userMods.SetAvatarConfigSection( "LastListMode", {value = ListInClassMode} )
+	ListButton:SetVal("button_label", userMods.ToWString( ListInClassMode and "Sc" or "S" ))
 	HideMainMenu()
 end
 
@@ -153,9 +153,11 @@ function CreateSubMenu(ClassName)
 			local build = BuildsTable[i]
 			if ClassName == nil or v.class== clTable[ClassName] then
 				local MenuName = v.name 
-				--if v.class then MenuName = MenuName..'('..v.class..')'	end			
+					
 				table.insert( SubMenu, {
 					name = userMods.ToWString( MenuName ),
+					isDNDEnabled = true,
+					associateBuild = build,
 					onActivate = 
 					function() 
 						LoadBuild( build ) 
@@ -180,11 +182,11 @@ function onShowList( params )
 	if DnD:IsDragging() then
 		return
 	end
-
+	m_currentMenu = nil
 	if not ClassMenu or not ClassMenu:IsValid() then
 		local menu = {}
 		
-		if ListMode then
+		if ListInClassMode then
 			for i, v in pairs( clTable ) do
 				local SubMenus = CreateSubMenu(i)
 			 	if table.getn(SubMenus) > 0 then table.insert( menu, { name = userMods.ToWString(v),submenu = SubMenus} ) end
@@ -201,8 +203,8 @@ function onShowList( params )
 		else
 			ClassMenu = ShowMenu( { x = params and params.x or 0, y = 32 }, menu )
 		end
-		RegisterDnd()
 		ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
+		m_currentMenu = menu
 	else
 		HideMainMenu()
 	end
@@ -215,7 +217,7 @@ local RenameBuildIndex = nil
 local RenameMenuIndex = nil
 
 function GetMenuItems()
-	local children = ListMode and (GetChildMenu(ClassMenu) and GetChildMenu(ClassMenu):GetNamedChildren() or {}) or ClassMenu:GetNamedChildren()
+	local children = ListInClassMode and (GetChildMenu(ClassMenu) and GetChildMenu(ClassMenu):GetNamedChildren() or {}) or ClassMenu:GetNamedChildren()
 	table.sort( children,
 		function( a, b )
 			if a:GetName() == "ItemEditTemplate" then return false end
@@ -232,10 +234,10 @@ function onRenameBuild( build )
 
 	
 	RenameBuildIndex = getBuildIndex( build )
-	RenameMenuIndex = ListMode and getBuildIndexByClass(build) or RenameBuildIndex
+	RenameMenuIndex = ListInClassMode and getBuildIndexByClass(build) or RenameBuildIndex
 	local item = GetMenuItems()[ RenameMenuIndex ]
 	item:Show( false )
-	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local menu = ListInClassMode and GetChildMenu(ClassMenu) or ClassMenu
 	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	edit:SetText( userMods.ToWString( build.name ) )
 	edit:SetPlacementPlain( item:GetPlacementPlain() )
@@ -249,7 +251,7 @@ function onRenameCancel( params )
 	local item = GetMenuItems()[ RenameMenuIndex ]
 	item:Show( true )
 
-	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local menu = ListInClassMode and GetChildMenu(ClassMenu) or ClassMenu
 	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	edit:Show( false )
 	edit:Enable( false )
@@ -260,7 +262,7 @@ function onRenameCancel( params )
 end
 
 function onRenameAccept( params )
-	local menu = ListMode and GetChildMenu(ClassMenu) or ClassMenu
+	local menu = ListInClassMode and GetChildMenu(ClassMenu) or ClassMenu
 	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	BuildsTable[ RenameBuildIndex ].name = userMods.FromWString( edit:GetText() )
 	SaveBuildsTable()
@@ -279,46 +281,95 @@ end
 
 ----------------------------------------------------------------------------------------------------
 -- DnD support
-
-local BaseDndId = 148754678
 local DraggedItem = nil
-local DragFrom = nil
-local DragTo = nil
+local SettingsIndexDragFrom = nil
+local SettingsIndexDragTo = nil
+local MenuIndexDragFrom = nil
+local MenuIndexDragTo = nil
 
 function IsDragging()
 	return DraggedItem ~= nil
 end
 
-function RegisterDnd()
-	local children = GetMenuItems()
-	for i, child in ipairs(children) do
-		local nameWidget = child:GetChildUnchecked( "CombinedItem", false )
-		if nameWidget then
-			mission.DNDRegister( nameWidget, BaseDndId + i, true )
+local function GetClassSubMenu(className)
+	for _, classMenu in pairs(m_currentMenu) do
+		if classMenu.name == className then
+			return classMenu.submenu
 		end
 	end
 end
 
-function OnDndPick( params )
-	if BaseDndId <= params.srcId and params.srcId <= BaseDndId + table.getn(BuildsTable) then
-		DraggedItem = params.srcWidget:GetParent()
-
-		local children = GetMenuItems()
-		DragFrom = 1
-		while children[DragFrom]:GetInstanceId() ~= DraggedItem:GetInstanceId() do
-			DragFrom = DragFrom + 1
-			if DragFrom > table.getn(BuildsTable) then
-				return
+function GetAssociateWithMenuClassName(wdg)
+	if ListInClassMode then
+		local searchingID = wdg:GetInstanceId()
+		for _, classMenu in pairs(m_currentMenu) do
+			for _, element in ipairs(classMenu.submenu) do
+				if element.wdgInstanceId == searchingID then
+					return classMenu.name
+				end
 			end
 		end
+	end
+end
 
+function GetAssociateWithMenuBuild(wdg)
+	local searchingID = wdg:GetInstanceId()
+	if not ListInClassMode then
+		for _, element in ipairs(m_currentMenu) do
+			if element.wdgInstanceId == searchingID then
+				return element.associateBuild
+			end
+		end
+	else
+		for _, classMenu in pairs(m_currentMenu) do
+			for _, element in ipairs(classMenu.submenu) do
+				if element.wdgInstanceId == searchingID then
+					return element.associateBuild
+				end
+			end
+		end
+	end
+end
+
+function GetAssociateWithMenuPosBuild(pos, className)
+	if not ListInClassMode then
+		return m_currentMenu[pos].associateBuild
+	else
+		return GetClassSubMenu(className)[pos].associateBuild
+	end
+end
+
+function GetMenuBuildElementCnt(className)
+	if not ListInClassMode then
+		return table.getn(m_currentMenu) - 1
+	else
+		return table.getn(GetClassSubMenu(className))
+	end
+end
+
+
+function OnDndPick( params )
+	if not IsMyMenuPicked(params.srcId) then
+		return
+	end
+	DraggedItem = params.srcWidget:GetParent()
+		
+	local children = GetMenuItems()
+	if children then
+		SettingsIndexDragFrom = getBuildIndex(GetAssociateWithMenuBuild(DraggedItem))
+
+		for i, w in ipairs( children ) do
+			if w:GetInstanceId() == DraggedItem:GetInstanceId() then
+				MenuIndexDragFrom = i
+			end
+		end
 		if RenameBuildIndex then
 			onRenameCancel()
 		end
 
 		common.RegisterEventHandler( OnDndDragTo, "EVENT_DND_DRAG_TO" )
 		common.RegisterEventHandler( OnDndEnd, "EVENT_DND_DROP_ATTEMPT" )
-		common.RegisterEventHandler( OnDndEnd, "EVENT_DND_DRAG_CANCELLED" )
+		common.RegisterEventHandler( OnDndCancelled, "EVENT_DND_DRAG_CANCELLED" )
 		mission.DNDConfirmPickAttempt()
 	end
 end
@@ -342,37 +393,52 @@ function OnDndDragTo( params )
 		height = height + childrenPos[ i ].sizeY
 	end
 
-	DragTo = dragIndex
+	local dragTo = dragIndex
 	if cursorY < childrenPos[dragIndex].posY then
-		while DragTo > 1 and cursorY < childrenPos[DragTo].posY do
-			DragTo = DragTo - 1
+		while dragTo > 1 and cursorY < childrenPos[dragTo].posY do
+			dragTo = dragTo - 1
 		end
 	else
-		while DragTo < table.getn(BuildsTable) and cursorY > childrenPos[DragTo].posY + childrenPos[DragTo].sizeY do
-			DragTo = DragTo + 1
+		while dragTo < GetMenuBuildElementCnt(GetAssociateWithMenuClassName(DraggedItem)) and cursorY > childrenPos[dragTo].posY + childrenPos[dragTo].sizeY do
+			dragTo = dragTo + 1
 		end
 	end
-	table.insert( children, DragTo, table.remove( children, dragIndex ) )
+	MenuIndexDragTo = dragTo
+	SettingsIndexDragTo = getBuildIndex(GetAssociateWithMenuPosBuild(dragTo, GetAssociateWithMenuClassName(DraggedItem)))
+
+	table.insert( children, dragTo, table.remove( children, dragIndex ) )
 
 	for i, w in ipairs( children ) do
 		w:PlayMoveEffect( w:GetPlacementPlain(), childrenPos[i], 100, EA_MONOTONOUS_INCREASE )
 	end
 end
 
-function OnDndEnd( params )
-	if DragFrom ~= DragTo then
-		table.insert( BuildsTable, DragTo, table.remove( BuildsTable, DragFrom ) )
-		SaveBuildsTable()
-	end
-
+function OnDndCancelled( params )
 	DraggedItem = nil
-	DragFrom = nil
-	DragTo = nil
+	SettingsIndexDragFrom = nil
+	SettingsIndexDragTo = nil
+	MenuIndexDragFrom = nil
+	MenuIndexDragTo = nil
 
 	common.UnRegisterEventHandler( OnDndDragTo, "EVENT_DND_DRAG_TO" )
 	common.UnRegisterEventHandler( OnDndEnd, "EVENT_DND_DROP_ATTEMPT" )
-	common.UnRegisterEventHandler( OnDndEnd, "EVENT_DND_DRAG_CANCELLED" )
+	common.UnRegisterEventHandler( OnDndCancelled, "EVENT_DND_DRAG_CANCELLED" )
 	mission.DNDConfirmDropAttempt()
+end
+
+function OnDndEnd( params )
+	if SettingsIndexDragFrom ~= SettingsIndexDragTo then	
+		table.insert( BuildsTable, SettingsIndexDragTo, table.remove( BuildsTable, SettingsIndexDragFrom ) )
+		if not ListInClassMode then
+			table.insert( m_currentMenu, MenuIndexDragTo, table.remove( m_currentMenu, MenuIndexDragFrom ) )
+		else
+			local subMenu = GetClassSubMenu(GetAssociateWithMenuClassName(DraggedItem))
+			table.insert( subMenu, MenuIndexDragTo, table.remove( subMenu, MenuIndexDragFrom ) )
+		end
+		SaveBuildsTable()
+	end
+
+	OnDndCancelled(params)
 end
 
 local function OnEventSecondTimer()
@@ -410,13 +476,12 @@ end
 
 function Init()
 	local LastListMode = userMods.GetAvatarConfigSection( "LastListMode" )
-	ListMode = LastListMode and LastListMode.value
-	ButtonText:SetVal("name", userMods.ToWString( ListMode and "Sc" or "S" )) 
+	ListInClassMode = LastListMode and LastListMode.value
+	ListButton:SetVal("button_label", userMods.ToWString( ListInClassMode and "Sc" or "S" )) 
 	
 	LoadBuildsTable()
 
-	DnD:Init( 527, ListButton, ListButton, true )
-	DnD:Init( 528, ButtonText, ListButton, true )
+	DnD.Init( ListButton, ListButton, true )
 
 	common.RegisterEventHandler( onInfoRequest, "SCRIPT_ADDON_INFO_REQUEST" )
 	common.RegisterEventHandler( onMemUsageRequest, "U_EVENT_ADDON_MEM_USAGE_REQUEST" )

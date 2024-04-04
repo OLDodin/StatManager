@@ -20,7 +20,10 @@
 --	} } }
 --	ShowMenu( { x = 100, y = 100 }, menu )
 
+
 local Actions = {} -- maps widget to action executed upon clicking it
+
+local DNDWidgets = {}
 
 -- templates for creating menu parts
 local MenuTemplate = mainForm:GetChildChecked( "MenuTemplate", true ):GetWidgetDesc()
@@ -31,13 +34,12 @@ local CombinedTemplate = mainForm:GetChildChecked( "CombinedTemplate", true ):Ge
 function ShowMenu( screenPosition, menu, parent, isSubMenu )
 	local menuWidget = mainForm:CreateWidgetByDesc( MenuTemplate )
 	mainForm:AddChild( menuWidget )
-
 	local menuPlacement = menuWidget:GetPlacementPlain()
 	local margin = menuPlacement.sizeY / 2
 	local width = 0
 	local height = margin
-
 	for _, item in ipairs( menu ) do
+		
 		local itemWidget
 		if item.createWidget then
 			itemWidget = item.createWidget()
@@ -54,7 +56,7 @@ function ShowMenu( screenPosition, menu, parent, isSubMenu )
 		menuWidget:AddChild( itemWidget )
 		itemWidget:Show( true )
 	end
-
+	
 	local menuPlacement = menuWidget:GetPlacementPlain()
 	menuPlacement.posX = screenPosition.x
 	menuPlacement.posY = screenPosition.y
@@ -75,6 +77,7 @@ function DestroyMenu( menuWidget )
 	end
 
 	ClearActions( menuWidget )
+	RemoveDnd( menuWidget )
 	menuWidget:DestroyWidget()
 end
 
@@ -86,6 +89,27 @@ end
 
 function SaveAction( widget, action )
 	Actions[ widget:GetInstanceId() ] = action
+end
+
+function IsMyMenuPicked(srcId)
+	if DNDWidgets[srcId] then
+		return true
+	end
+end
+
+function RemoveDnd( widget )
+	local children = widget:GetNamedChildren()
+	for _, childWdg in pairs( children ) do
+		for i, wdg in pairs(DNDWidgets) do
+			if wdg and wdg:IsEqual(childWdg) then
+				mission.DNDCancelDrag()
+				mission.DNDUnregister(wdg)
+				DNDWidgets[i] = nil
+				break
+			end
+		end
+		RemoveDnd( childWdg )
+	end
 end
 
 function ClearActions( widget )
@@ -104,9 +128,15 @@ function CreateItemWidget( item )
 	local widget
 	if item.submenu and item.onActivate then
 		widget = mainForm:CreateWidgetByDesc( CombinedTemplate )
-		widget:GetChildChecked( "CombinedItem", true ):SetVal( "button_label", item.name )
-		SaveAction( widget:GetChildChecked( "CombinedItem", true ), item.onActivate )
+		local combinedItemWdg = widget:GetChildChecked( "CombinedItem", false )
+		combinedItemWdg:SetVal( "button_label", item.name )
+		SaveAction( combinedItemWdg, item.onActivate )
 		SaveAction( widget:GetChildChecked( "CombinedSubmenu", true ), item.submenu )
+		if item.isDNDEnabled then
+			local id = DnD.AllocateDnDID(combinedItemWdg)
+			DNDWidgets[id] = combinedItemWdg
+			mission.DNDRegister(combinedItemWdg, id, true)
+		end
 	elseif item.submenu then
 		widget = mainForm:CreateWidgetByDesc( SubmenuTemplate )
 		widget:SetVal( "button_label", item.name )
@@ -118,7 +148,9 @@ function CreateItemWidget( item )
 			SaveAction( widget, item.onActivate )
 		end
 	end
-
+	
+	item.wdgInstanceId = widget:GetInstanceId()
+	
 	return widget
 end
 
@@ -159,12 +191,14 @@ function OnActivate( params )
 		DestroyMenu( menu )
 
 		if action then
-			action()
+			action(params.widget)
 		end
 	end
 end
 
 function OnOpenSubmenu( params )
+
+	
 	if params.active then
 		local action = Actions[ params.widget:GetInstanceId() ]
 		if action then
@@ -184,7 +218,6 @@ function OnOpenSubmenu( params )
 				menuInfo.childMenu = nil
 			end
 			menuInfo.childMenu = ShowMenu( pos, action, menuWidget, true )
-			
 		end
 	end
 end
@@ -200,14 +233,6 @@ function OnCloseSubmenu( params )
 	end
 end
 
-function ToWString(text)
-	if not text then return nil end
-	if not common.IsWString(text) then
-		text=userMods.ToWString(tostring(text))
-	end
-	return text
-end
-
 ----------------------------------------------------------------------------------------------------
 
 function InitMenu()
@@ -215,4 +240,4 @@ function InitMenu()
 	common.RegisterReactionHandler( OnOpenSubmenu, "MenuOpenSubmenuReaction" )
 	common.RegisterReactionHandler( OnOpenSubmenu, "SubmenuMouseOverReaction" )
 	common.RegisterReactionHandler( OnCloseSubmenu, "ItemMouseOverReaction" )
-end
+end  
