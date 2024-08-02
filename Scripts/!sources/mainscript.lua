@@ -195,7 +195,7 @@ function onShowList( params )
 			menu = CreateSubMenu(nil)
 		end
 
-		table.insert( menu, { createWidget = function() return mainForm:CreateWidgetByDesc( m_menuDesc ) end } )
+		table.insert( menu, { createWidget = function(aParent) return aParent:CreateChildByDesc( m_menuDesc ) end } )
 
 		if ListButton:IsVisible() then
 			local pos = ListButton:GetPlacementPlain()
@@ -263,6 +263,9 @@ end
 
 function onRenameAccept( params )
 	local menu = ListInClassMode and GetChildMenu(ClassMenu) or ClassMenu
+	if not menu:IsValid() then
+		return
+	end
 	local edit = menu:GetChildChecked( "ItemEditTemplate", false )
 	BuildsTable[ RenameBuildIndex ].name = userMods.FromWString( edit:GetText() )
 	SaveBuildsTable()
@@ -375,7 +378,7 @@ function OnDndPick( params )
 end
 
 function OnDndDragTo( params )
-	local posConverter = widgetsSystem:GetPosConverterParams()
+	local posConverter = common.GetPosConverterParams()
 	local cursorY = params.posY * posConverter.fullVirtualSizeY / posConverter.realSizeY
 	local cursorY = cursorY - DraggedItem:GetParent():GetPlacementPlain().posY
 
@@ -426,19 +429,43 @@ function OnDndCancelled( params )
 	mission.DNDConfirmDropAttempt()
 end
 
-function OnDndEnd( params )
-	if SettingsIndexDragFrom ~= SettingsIndexDragTo then	
-		table.insert( BuildsTable, SettingsIndexDragTo, table.remove( BuildsTable, SettingsIndexDragFrom ) )
-		if not ListInClassMode then
-			table.insert( m_currentMenu, MenuIndexDragTo, table.remove( m_currentMenu, MenuIndexDragFrom ) )
-		else
-			local subMenu = GetClassSubMenu(GetAssociateWithMenuClassName(DraggedItem))
-			table.insert( subMenu, MenuIndexDragTo, table.remove( subMenu, MenuIndexDragFrom ) )
-		end
-		SaveBuildsTable()
+function ApplyChangePosition()
+	local removingItem = table.remove( BuildsTable, SettingsIndexDragFrom )
+	table.insert( BuildsTable, SettingsIndexDragTo, removingItem )
+	if not ListInClassMode then
+		removingItem = table.remove( m_currentMenu, MenuIndexDragFrom )
+		table.insert( m_currentMenu, MenuIndexDragTo, removingItem )
+	else
+		local subMenu = GetClassSubMenu(GetAssociateWithMenuClassName(DraggedItem))
+		removingItem = table.remove( subMenu, MenuIndexDragFrom )
+		table.insert( subMenu, MenuIndexDragTo, removingItem )
 	end
+end
 
+function OnDndEnd( params )
+	local backupSettings = table.clone(BuildsTable)
+	local someBroken = false
+	if SettingsIndexDragFrom ~= nil and SettingsIndexDragTo ~= nil 
+		and SettingsIndexDragTo <= GetTableSize(BuildsTable)
+		and SettingsIndexDragFrom > 0 and SettingsIndexDragTo > 0
+		and SettingsIndexDragFrom ~= SettingsIndexDragTo 
+	then
+		if pcall(ApplyChangePosition) then
+			SaveBuildsTable()
+		else
+			--был случай когда "залип" одиночный клик и затем как-то при тасканиях потерлись билды
+			--поэтому обернул проверками для сохранения данных
+			someBroken = true
+		end
+	end
+	
 	OnDndCancelled(params)
+	
+	if someBroken then
+		BuildsTable = backupSettings
+		onShowList(g_lastAoPanelParams)
+		onShowList(g_lastAoPanelParams)
+	end
 end
 
 local function OnEventSecondTimer()

@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- LibDnD.lua // "Drag&Drop Library" by SLA, version 2011-05-28
---                                   updated version 2023-07-11 by oldodin
+--                                   updated version 2024-07-02 by oldodin
 -- Help, support and updates: 
 -- https://alloder.pro/topic/260-how-to-libdndlua-biblioteka-dragdrop/
 --------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ function DnD.Init( wtMovable, wtReacting, fUseCfg, fLockedToParentArea, Padding,
 	if type(wtMovable) ~= "userdata" then return end
 	if not DnD.Widgets then
 		DnD.Widgets = {}
-		DnD.Screen = widgetsSystem:GetPosConverterParams()
+		DnD.Screen = common.GetPosConverterParams()
 		common.RegisterEventHandler( DnD.OnPickAttempt, "EVENT_DND_PICK_ATTEMPT" )
 		common.RegisterEventHandler( DnD.OnResolutionChanged, "EVENT_POS_CONVERTER_CHANGED" )
 	end
@@ -82,6 +82,23 @@ function DnD.Enable( wtWidget, fEnable, oldParam1 )
 	if ID and DnD.Widgets[ ID ].Enabled ~= fEnable then
 		DnD.Widgets[ ID ].Enabled = fEnable
 		DnD.Register( wtWidget, fEnable )
+	end
+end
+function DnD.UpdatePadding( wtWidget, Padding )
+	if not DnD.Widgets then return end
+	local ID = DnD.GetWidgetID( wtWidget )
+	if ID then
+		if type( Padding ) == "table" then
+			for i = 1, 4 do
+				if Padding[ i ] then
+					DnD.Widgets[ ID ].Padding[ i ] = Padding[ i ]
+				end
+			end
+		elseif type( Padding ) == "number" then
+			for i = 1, 4 do
+				DnD.Widgets[ ID ].Padding[ i ] = Padding
+			end
+		end
 	end
 end
 function DnD.IsDragging()
@@ -219,12 +236,12 @@ function DnD.OnPickAttempt( params )
 	not DnD.Widgets[ Picking ].KbFlag 
 	or DnD.Widgets[ Picking ].KbFlag == KBF_NONE 
 	and params.kbFlags == KBF_NONE 
-	or (common.GetBitAnd and common.GetBitAnd( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0  or bit.band( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0)
+	or bit.band( params.kbFlags, DnD.Widgets[ Picking ].KbFlag ) ~= 0
 	) then
 		DnD.Place = DnD.Widgets[ Picking ].wtMovable:GetPlacementPlain()
 		DnD.Reset = DnD.Widgets[ Picking ].wtMovable:GetPlacementPlain()
 		DnD.Cursor = { X = params.posX , Y = params.posY }
-		DnD.Screen = widgetsSystem:GetPosConverterParams()
+		DnD.Screen = common.GetPosConverterParams()
 		if DnD.Widgets[ Picking ].fLockedToParentArea then
 			DnD.LimitMin, DnD.LimitMax = DnD.PrepareLimits( Picking, DnD.Place )
 		end
@@ -288,7 +305,7 @@ end
 function DnD.OnResolutionChanged()
 	mission.DNDCancelDrag()
 	DnD.OnDragCancelled()
-	DnD.Screen = widgetsSystem:GetPosConverterParams()
+	DnD.Screen = common.GetPosConverterParams()
 	for ID, W in pairs( DnD.Widgets ) do
 		if W.fLockedToParentArea then
 			local InitialPlace = W.wtMovable:GetPlacementPlain()
@@ -312,10 +329,21 @@ end
 
 DnD.ShowWdg = function(aWdg)
 	aWdg:Show(true)
-	DnD.Register(aWdg, true)
+	if not DnD.Widgets then return end
+	local ID = DnD.GetWidgetID(aWdg)
+	if ID then
+		DnD.Widgets[ ID ].Enabled = true
+		DnD.Register(aWdg, true)
+	end
 end
 
 DnD.HideWdg = function(aWdg)
 	aWdg:Show(false)
-	DnD.Register(aWdg, false)
+	if not DnD.Widgets then return end
+	local ID = DnD.GetWidgetID(aWdg)
+	if ID then
+		DnD.Widgets[ ID ].Enabled = false
+		--при aWdg:Show(false)  DNDUnregister выполнит сам движок
+		--DnD.Register(aWdg, false)
+	end
 end

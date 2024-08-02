@@ -1,4 +1,5 @@
 ﻿Global("Locales", {})
+Global("LocalesInited", false)
 Global( "g_offensiveItems", {} )
 Global( "g_defensiveItems", {} )
  
@@ -18,12 +19,17 @@ end
 PrepareLocale()
 
 function getLocale()
-	return setmetatable(Locales, 
-		{__index = function(t,k) 
-			if localeGroup:HasText(k) then
-				return localeGroup:GetText(k) 
+	if LocalesInited then
+		return Locales
+	else
+		LocalesInited = true
+		return setmetatable(Locales, 
+			{__index = function(t,k) 
+				if localeGroup:HasText(k) then
+					return localeGroup:GetText(k) 
+				end
 			end
-		end
-		}
-	)
+			}
+		)
+	end
 end

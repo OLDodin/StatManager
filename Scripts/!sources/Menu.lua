@@ -32,8 +32,7 @@ local SubmenuTemplate = mainForm:GetChildChecked( "SubmenuTemplate", true ):GetW
 local CombinedTemplate = mainForm:GetChildChecked( "CombinedTemplate", true ):GetWidgetDesc()
 
 function ShowMenu( screenPosition, menu, parent, isSubMenu )
-	local menuWidget = mainForm:CreateWidgetByDesc( MenuTemplate )
-	mainForm:AddChild( menuWidget )
+	local menuWidget = mainForm:CreateChildByDesc( MenuTemplate )
 	local menuPlacement = menuWidget:GetPlacementPlain()
 	local margin = menuPlacement.sizeY / 2
 	local width = 0
@@ -42,9 +41,9 @@ function ShowMenu( screenPosition, menu, parent, isSubMenu )
 		
 		local itemWidget
 		if item.createWidget then
-			itemWidget = item.createWidget()
+			itemWidget = item.createWidget( menuWidget )
 		else
-			itemWidget = CreateItemWidget( item )
+			itemWidget = CreateItemWidget( menuWidget, item )
 		end
 
 		local placement = itemWidget:GetPlacementPlain()
@@ -53,7 +52,6 @@ function ShowMenu( screenPosition, menu, parent, isSubMenu )
 		height = height + placement.sizeY
 		width = math.max( width, placement.sizeX );
 
-		menuWidget:AddChild( itemWidget )
 		itemWidget:Show( true )
 	end
 	
@@ -124,10 +122,10 @@ function ClearActions( widget )
 	end
 end
 
-function CreateItemWidget( item )
+function CreateItemWidget( parent, item )
 	local widget
 	if item.submenu and item.onActivate then
-		widget = mainForm:CreateWidgetByDesc( CombinedTemplate )
+		widget = parent:CreateChildByDesc( CombinedTemplate )
 		local combinedItemWdg = widget:GetChildChecked( "CombinedItem", false )
 		combinedItemWdg:SetVal( "button_label", item.name )
 		SaveAction( combinedItemWdg, item.onActivate )
@@ -138,11 +136,11 @@ function CreateItemWidget( item )
 			mission.DNDRegister(combinedItemWdg, id, true)
 		end
 	elseif item.submenu then
-		widget = mainForm:CreateWidgetByDesc( SubmenuTemplate )
+		widget = parent:CreateChildByDesc( SubmenuTemplate )
 		widget:SetVal( "button_label", item.name )
 		SaveAction( widget, item.submenu )
 	else
-		widget = mainForm:CreateWidgetByDesc( ItemTemplate )
+		widget = parent:CreateChildByDesc( ItemTemplate )
 		widget:SetVal( "button_label", item.name )
 		if item.onActivate then
 			SaveAction( widget, item.onActivate )
@@ -163,7 +161,7 @@ function GetParentMenu( childWidget )
 end
 
 function MakeVisible( placement, isSubMenu )
-	local posConverter = widgetsSystem:GetPosConverterParams()
+	local posConverter = common.GetPosConverterParams()
 	if placement.posX + placement.sizeX > posConverter.fullVirtualSizeX then
 		placement.posX = posConverter.fullVirtualSizeX - placement.sizeX
 		if isSubMenu then
