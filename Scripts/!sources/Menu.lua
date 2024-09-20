@@ -100,8 +100,10 @@ function RemoveDnd( widget )
 	for _, childWdg in pairs( children ) do
 		for i, wdg in pairs(DNDWidgets) do
 			if wdg and wdg:IsEqual(childWdg) then
-				mission.DNDCancelDrag()
-				mission.DNDUnregister(wdg)
+				if wdg:DNDGetState() ~= DND_STATE_NOT_REGISTERED then
+					wdg:DNDCancelDrag()
+					wdg:DNDUnregister()
+				end
 				DNDWidgets[i] = nil
 				break
 			end
@@ -131,9 +133,11 @@ function CreateItemWidget( parent, item )
 		SaveAction( combinedItemWdg, item.onActivate )
 		SaveAction( widget:GetChildChecked( "CombinedSubmenu", true ), item.submenu )
 		if item.isDNDEnabled then
-			local id = DnD.AllocateDnDID(combinedItemWdg)
+			local id = combinedItemWdg:GetId()
 			DNDWidgets[id] = combinedItemWdg
-			mission.DNDRegister(combinedItemWdg, id, true)
+			if combinedItemWdg:DNDGetState() == DND_STATE_NOT_REGISTERED then
+				combinedItemWdg:DNDRegister(id, true)
+			end
 		end
 	elseif item.submenu then
 		widget = parent:CreateChildByDesc( SubmenuTemplate )

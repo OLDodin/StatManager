@@ -373,11 +373,14 @@ function OnDndPick( params )
 		common.RegisterEventHandler( OnDndDragTo, "EVENT_DND_DRAG_TO" )
 		common.RegisterEventHandler( OnDndEnd, "EVENT_DND_DROP_ATTEMPT" )
 		common.RegisterEventHandler( OnDndCancelled, "EVENT_DND_DRAG_CANCELLED" )
-		mission.DNDConfirmPickAttempt()
+		DraggedItem:DNDConfirmPickAttempt()
 	end
 end
 
 function OnDndDragTo( params )
+	if not DraggedItem then 
+		return
+	end
 	local posConverter = common.GetPosConverterParams()
 	local cursorY = params.posY * posConverter.fullVirtualSizeY / posConverter.realSizeY
 	local cursorY = cursorY - DraggedItem:GetParent():GetPlacementPlain().posY
@@ -417,16 +420,18 @@ function OnDndDragTo( params )
 end
 
 function OnDndCancelled( params )
+	common.UnRegisterEventHandler( OnDndDragTo, "EVENT_DND_DRAG_TO" )
+	common.UnRegisterEventHandler( OnDndEnd, "EVENT_DND_DROP_ATTEMPT" )
+	common.UnRegisterEventHandler( OnDndCancelled, "EVENT_DND_DRAG_CANCELLED" )
+	if DraggedItem then
+		DraggedItem:DNDConfirmDropAttempt()
+	end
+	
 	DraggedItem = nil
 	SettingsIndexDragFrom = nil
 	SettingsIndexDragTo = nil
 	MenuIndexDragFrom = nil
 	MenuIndexDragTo = nil
-
-	common.UnRegisterEventHandler( OnDndDragTo, "EVENT_DND_DRAG_TO" )
-	common.UnRegisterEventHandler( OnDndEnd, "EVENT_DND_DROP_ATTEMPT" )
-	common.UnRegisterEventHandler( OnDndCancelled, "EVENT_DND_DRAG_CANCELLED" )
-	mission.DNDConfirmDropAttempt()
 end
 
 function ApplyChangePosition()
