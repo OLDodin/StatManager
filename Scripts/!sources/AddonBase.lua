@@ -21,11 +21,11 @@ end
 
 function TEventProfile:GetEventFunc()
 	self.MyFunc = function(aParams)
-		local startTime = getTimestamp()
+		local startTime = common.GetMks()
 		
 		self.OriginFunc(aParams)
 		
-		local workingTime = getTimestamp() - startTime
+		local workingTime = (common.GetMks() - startTime) / 1000
 		self.CallCount = self.CallCount + 1
 		self.TotalWorkingTime = self.TotalWorkingTime + workingTime
 		self.MaxWorkingTime = math.max(self.MaxWorkingTime, workingTime)
@@ -132,7 +132,7 @@ function LogToChat(aMessage, aType)
 	if not aType then
 		aType = "notice"
 	end
-	if not common.IsWString(aMessage) then
+	if apitype(aMessage) ~= "WString" then
 		aMessage = userMods.ToWString(tostring(aMessage))
 	end
 	userMods.SendSelfChatMessage(aMessage, aType)

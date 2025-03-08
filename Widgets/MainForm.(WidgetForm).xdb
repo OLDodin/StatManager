@@ -4,8 +4,6 @@
 	<Priority>10000</Priority>
 	<Children>
 		<Item href="ListButton.(WidgetButton).xdb#xpointer(/WidgetButton)" />
-		<Item href="Menu/Widgets/MenuTemplate.(WidgetPanel).xdb#xpointer(/WidgetPanel)" />
-		<Item href="SaveBuildControl/SaveBuildTemplate.(WidgetPanel).xdb#xpointer(/WidgetPanel)" />
 	</Children>
 	<BackLayer href="" />
 	<FrontLayer href="" />

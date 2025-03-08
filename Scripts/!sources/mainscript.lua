@@ -1,48 +1,17 @@
 Global( "g_lastAoPanelParams", nil )
 
 local ListInClassMode = false
-local ListButton = mainForm:GetChildChecked( "ListButton", true )
+local ListButton = mainForm:GetChildChecked( "ListButton", false )
 ListButton:SetVal("button_label", userMods.ToWString( ListInClassMode and "Sc" or "S" )) 
 
 local m_currentMenu = nil
 
-local m_menuDesc = mainForm:GetChildChecked( "SaveBuildTemplate", false ):GetWidgetDesc()
-----------------------------------------------------------------------------------------------------
--- AddonManager support
-
-function onMemUsageRequest( params )
-	userMods.SendEvent( "U_EVENT_ADDON_MEM_USAGE_RESPONSE",
-		{ sender = common.GetAddonName(), memUsage = gcinfo() } )
-end
-
-function onToggleDND( params )
-	if params.target == common.GetAddonName() then
-		DnD:Enable( ListButton, params.state )
-	end
-end
-
-function onToggleVisibility( params )
-	if params.target == common.GetAddonName() then
-		mainForm:Show( params.state == true )
-	end
-end
-
-function onInfoRequest( params )
-	if params.target == common.GetAddonName() then
-		userMods.SendEvent( "SCRIPT_ADDON_INFO_RESPONSE", {
-			sender = params.target,
-			desc = "",
-			showDNDButton = true,
-			showHideButton = true,
-			showSettingsButton = false,
-		} )
-	end
-end
+local m_menuDesc = GetWdgDesc("SaveBuildTemplate")
 
 ----------------------------------------------------------------------------------------------------
 -- AOPanel support
 
-local IsAOPanelEnabled = GetConfig( "EnableAOPanel" ) or GetConfig( "EnableAOPanel" ) == nil
+local IsAOPanelEnabled = true
 local IsBtnInAOPanelNow = false
 function onAOPanelStart( params )
 	if IsAOPanelEnabled then
@@ -89,17 +58,6 @@ function onAOPanelChange( params )
 	end
 end
 
-function enableAOPanelIntegration( enable )
-	IsAOPanelEnabled = enable
-	SetConfig( "EnableAOPanel", enable )
-
-	if enable then
-		onAOPanelStart()
-	else
-		ListButton:Show( true )
-		IsBtnInAOPanelNow = false
-	end
-end
 
 ----------------------------------------------------------------------------------------------------
 
@@ -108,7 +66,7 @@ local ClassMenu = nil
 local Localization = getLocale()
 
 function onSaveBuild( params )
-	local wtEdit = params.widget:GetParent():GetChildChecked( "BuildNameEdit", true )
+	local wtEdit = params.widget:GetParent():GetChildChecked( "BuildNameEdit", false )
 	local text = userMods.FromWString( wtEdit:GetText() )
 
 	if text ~= "" then
@@ -203,7 +161,7 @@ function onShowList( params )
 		else
 			ClassMenu = ShowMenu( { x = params and params.x or 0, y = 32 }, menu )
 		end
-		ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
+		ClassMenu:GetChildChecked( "SaveBuildTemplate", false ):GetChildChecked( "BuildNameEdit", false ):SetFocus( true )
 		m_currentMenu = menu
 	else
 		HideMainMenu()
@@ -244,7 +202,7 @@ function onRenameBuild( build )
 	edit:Show( true )
 	edit:Enable( true )
 	edit:SetFocus( true )
-	ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( false )
+	ClassMenu:GetChildChecked( "SaveBuildTemplate", false ):GetChildChecked( "BuildNameEdit", false ):SetFocus( false )
 end
 
 function onRenameCancel( params )
@@ -256,7 +214,7 @@ function onRenameCancel( params )
 	edit:Show( false )
 	edit:Enable( false )
 
-	ClassMenu:GetChildChecked( "BuildNameEdit", true ):SetFocus( true )
+	ClassMenu:GetChildChecked( "SaveBuildTemplate", false ):GetChildChecked( "BuildNameEdit", false ):SetFocus( true )
 	RenameBuildIndex = nil
 	RenameMenuIndex = nil
 end
@@ -514,11 +472,6 @@ function Init()
 	LoadBuildsTable()
 
 	DnD.Init( ListButton, ListButton, true )
-
-	common.RegisterEventHandler( onInfoRequest, "SCRIPT_ADDON_INFO_REQUEST" )
-	common.RegisterEventHandler( onMemUsageRequest, "U_EVENT_ADDON_MEM_USAGE_REQUEST" )
-	common.RegisterEventHandler( onToggleDND, "SCRIPT_TOGGLE_DND" )
-	common.RegisterEventHandler( onToggleVisibility, "SCRIPT_TOGGLE_VISIBILITY" )
 
 	common.RegisterEventHandler( onAOPanelStart, "AOPANEL_START" )
 	common.RegisterEventHandler( onAOPanelLeftClick, "AOPANEL_BUTTON_LEFT_CLICK" )

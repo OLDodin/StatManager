@@ -25,11 +25,17 @@ local Actions = {} -- maps widget to action executed upon clicking it
 
 local DNDWidgets = {}
 
+local addonRelatedWidgetGroup = common.GetAddonRelatedWidgetGroup("menu")
+function GetWdgDesc(aName)
+	return addonRelatedWidgetGroup:GetWidget(aName)
+end
+
 -- templates for creating menu parts
-local MenuTemplate = mainForm:GetChildChecked( "MenuTemplate", true ):GetWidgetDesc()
-local ItemTemplate = mainForm:GetChildChecked( "ItemTemplate", true ):GetWidgetDesc()
-local SubmenuTemplate = mainForm:GetChildChecked( "SubmenuTemplate", true ):GetWidgetDesc()
-local CombinedTemplate = mainForm:GetChildChecked( "CombinedTemplate", true ):GetWidgetDesc()
+local MenuTemplate = GetWdgDesc("MenuTemplate")
+local ItemTemplate = GetWdgDesc("ItemTemplate")
+local SubmenuTemplate = GetWdgDesc("SubmenuTemplate")
+local CombinedTemplate = GetWdgDesc("CombinedTemplate")
+
 
 function ShowMenu( screenPosition, menu, parent, isSubMenu )
 	local menuWidget = mainForm:CreateChildByDesc( MenuTemplate )
@@ -131,7 +137,7 @@ function CreateItemWidget( parent, item )
 		local combinedItemWdg = widget:GetChildChecked( "CombinedItem", false )
 		combinedItemWdg:SetVal( "button_label", item.name )
 		SaveAction( combinedItemWdg, item.onActivate )
-		SaveAction( widget:GetChildChecked( "CombinedSubmenu", true ), item.submenu )
+		SaveAction( widget:GetChildChecked( "CombinedSubmenu", false ), item.submenu )
 		if item.isDNDEnabled then
 			if combinedItemWdg:DNDGetState() == DND_STATE_NOT_REGISTERED then
 				local id = combinedItemWdg:DNDRegisterGeneric(true)

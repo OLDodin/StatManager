@@ -31,6 +31,12 @@
 			<texts href="Locales/insigniaNames/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
 		</Item>
 	</textsGroups>
+	<widgetGroups>
+		<Item>
+			<groupName>menu</groupName>
+			<widgets href="Widgets/Resources/menu/WidgetTemplates.xdb" />
+		</Item>
+	</widgetGroups>
 	<visObjects href=""/>
 <addon_name>StatManager</addon_name>
 </UIAddon>
