@@ -281,7 +281,7 @@ end
 
 function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsigniaID)
 	if aLastInsigniaIndex~=nil then
-		local itemID = avatar.GetInventoryItemId(aLastInsigniaIndex)
+		local itemID = containerLib.GetItem(ITEM_CONT_INVENTORY, aLastInsigniaIndex)
 		if aLastInsigniaID and itemID and aLastInsigniaID == itemID then
 			return aLastInsigniaID, aLastInsigniaIndex
 		end
@@ -300,7 +300,7 @@ function CheckItemName(aMyItems, anRightNameArr, aLastInsigniaIndex, aLastInsign
 end
 
 function GetInsignia()
-	local myItems = avatar.GetInventoryItemIds()
+	local myItems = containerLib.GetItems(ITEM_CONT_INVENTORY)
 	if not myItems then 
 		myItems = {}
 	end

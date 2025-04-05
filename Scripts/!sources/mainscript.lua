@@ -444,13 +444,11 @@ end
 local function OnSlashCommand(aParams)
 	if userMods.FromWString(aParams.text) == "/statsaveglobal" or userMods.FromWString(aParams.text) == "\\statsaveglobal" then
 		SetSaveGlobal(true)
-		common.StateUnloadManagedAddon( "UserAddon/StatManager" )
-		common.StateLoadManagedAddon( "UserAddon/StatManager" )
+		common.StateReloadManagedAddon(common.GetAddonSysName())
 	end
 	if userMods.FromWString(aParams.text) == "/statsaveavatar" or userMods.FromWString(aParams.text) == "\\statsaveavatar" then
 		SetSaveGlobal(false)
-		common.StateUnloadManagedAddon( "UserAddon/StatManager" )
-		common.StateLoadManagedAddon( "UserAddon/StatManager" )
+		common.StateReloadManagedAddon(common.GetAddonSysName())
 	end
 end
 
