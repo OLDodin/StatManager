@@ -52,7 +52,7 @@ function RightClick(param)
 end
 
 function onAOPanelChange( params )
-	if params.unloading and string.find(params.name, "AOPanel") then
+	if params.state == ADDON_STATE_NOT_LOADED and string.find(params.name, "AOPanel") then
 		ListButton:Show( true )
 		IsBtnInAOPanelNow = false
 	end
