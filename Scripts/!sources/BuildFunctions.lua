@@ -107,6 +107,12 @@ function LoadBuild( aBuild )
 	IsLoadingNow = true
 	ResetTryCnt()
 	LoadingBuild = aBuild
+	
+	m_lastOffenceInsigniaID = nil
+	m_lastDefenceInsigniaID = nil
+	m_lastOffenceInsigniaIndex = nil
+	m_lastDefenceInsigniaIndex = nil
+
 	LoadBuildInternal(aBuild, true)
 end
 
