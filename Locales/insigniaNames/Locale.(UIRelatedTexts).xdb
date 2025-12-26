@@ -53,6 +53,18 @@
       <name>offensiveItem13</name>
       <resource href="offensiveItem13.txt"/>
     </Item>
+	<Item>
+      <name>offensiveItem14</name>
+      <resource href="offensiveItem14.txt"/>
+    </Item>
+	<Item>
+      <name>offensiveItem15</name>
+      <resource href="offensiveItem15.txt"/>
+    </Item>
+	<Item>
+      <name>offensiveItem16</name>
+      <resource href="offensiveItem16.txt"/>
+    </Item>
     <Item>
       <name>defensiveItem1</name>
       <resource href="defensiveItem1.txt"/>
@@ -104,6 +116,18 @@
 	<Item>
       <name>defensiveItem13</name>
       <resource href="defensiveItem13.txt"/>
+    </Item>
+	<Item>
+      <name>defensiveItem14</name>
+      <resource href="defensiveItem14.txt"/>
+    </Item>
+    <Item>
+      <name>defensiveItem15</name>
+      <resource href="defensiveItem15.txt"/>
+    </Item>
+	<Item>
+      <name>defensiveItem16</name>
+      <resource href="defensiveItem16.txt"/>
     </Item>
   </items>
 </UIRelatedTexts>

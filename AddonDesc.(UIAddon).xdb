@@ -37,6 +37,10 @@
 			<texts href="Locales/fra/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
 		</Item>
 		<Item>
+			<groupName>tur</groupName>
+			<texts href="Locales/tur/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
+		</Item>
+		<Item>
 			<groupName>insigniaNames</groupName>
 			<texts href="Locales/insigniaNames/Locale.(UIRelatedTexts).xdb#xpointer(/UIRelatedTexts)"/>
 		</Item>
