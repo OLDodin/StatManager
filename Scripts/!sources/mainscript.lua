@@ -111,7 +111,7 @@ function CreateSubMenu(ClassName)
 			local build = BuildsTable[i]
 			if ClassName == nil or v.class== clTable[ClassName] then
 				local MenuName = v.name 
-					
+
 				table.insert( SubMenu, {
 					name = userMods.ToWString( MenuName ),
 					isDNDEnabled = true,
@@ -143,7 +143,7 @@ function onShowList( params )
 	m_currentMenu = nil
 	if not ClassMenu or not ClassMenu:IsValid() then
 		local menu = {}
-		
+
 		if ListInClassMode then
 			for i, v in pairs( clTable ) do
 				local SubMenus = CreateSubMenu(i)
